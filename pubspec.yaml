@@ -1,0 +1,30 @@
+name: beathub
+description: "Music service"
+
+publish_to: 'none' 
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.5.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+  audioplayers: ^6.1.0
+   
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+ 
+  flutter_lints: ^4.0.0
+
+flutter:
+  
+  uses-material-design: true
+  
+  assets:
+     - assets/songs/songs.json
+     # When add new tracks, load it here
