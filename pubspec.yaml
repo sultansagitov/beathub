@@ -28,3 +28,8 @@ flutter:
   assets:
      - assets/songs/songs.json
      # When add new tracks, load it here
+     - assets/songs/linkin-park-breaking-the-habit.mp3
+     - assets/songs/linkin-park-foreword.mp3
+     - assets/songs/linkin-park-the-emptiness-machine.mp3
+     - assets/images/emptiness-machine.jpeg
+     - assets/images/meteora.jpg

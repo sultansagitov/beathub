@@ -238,99 +238,112 @@ class _HomePageState extends State<HomePage> {
       ),
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 20, right: 20),
-                child: Text(
-                  _currentTrackIndex != -1
-                    ? _tracks[_currentTrackIndex]["name"]!
-                    : ""),
+            _play != Play.notStarted ? Expanded(
+              child: Image(
+                image: AssetImage(_tracks[_currentTrackIndex]["image"]),
+                width: 423
               )
-            ),
-
-            Slider(
-              min: 0.0,
-              max: _duration.inSeconds.toDouble(),
-              value: _position.inSeconds.toDouble(),
-              onChanged: (double value) {
-                setState(() {
-                  _position = Duration(seconds: value.toInt());
-                });
-              },
-              onChangeStart: (double value) {
-                setState(() {
-                  _sliderTouch = true;
-                });
-              },
-              onChangeEnd: (double value) {
-                _sliderTouch = false;
-                _audioPlayer.seek(Duration(seconds: value.toInt()));
-              },
-            ),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            ) : Container(),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-              
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    IconButton(
-                      icon: Icon(
-                        Icons.shuffle,
-                        color: _shuffle ? Colors.white : Colors.blueGrey,
-                        size: 36.0,
-                      ),
-                      onPressed: _shuffleTracksBtn,
-                    ),
-                    IconButton(
-                      icon: Icon(
-                        _repeat == Repeating.repeatOne
-                            ? Icons.repeat_one
-                            : Icons.repeat,
-                        color: _repeat == Repeating.noRepeat
-                            ? Colors.blueGrey
-                            : Colors.white,
-                        size: 36.0,
-                      ),
-                      onPressed: _repeatTracksBtn,
-                    ),
-                  ]
+                SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 20, right: 20),
+                      child: Text(
+                          _currentTrackIndex != -1
+                              ? _tracks[_currentTrackIndex]["name"]!
+                              : ""),
+                    )
                 ),
-              
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: <Widget>[
-                    IconButton(
-                      icon: const Icon(
-                        Icons.skip_previous,
-                        size: 36.0,
-                      ),
-                      onPressed: _prevTrackBtn,
-                    ),
-                    IconButton(
-                      icon: Icon(
-                        _icon,
-                        size: 36.0,
-                      ),
-                      onPressed: _playBtn,
-                    ),
-                    IconButton(
-                      icon: const Icon(
-                        Icons.skip_next,
-                        size: 36.0,
-                      ),
-                      onPressed: _nextTrackBtn,
-                    ),
-                  ]
+
+                Slider(
+                  min: 0.0,
+                  max: _duration.inSeconds.toDouble(),
+                  value: _position.inSeconds.toDouble(),
+                  onChanged: (double value) {
+                    setState(() {
+                      _position = Duration(seconds: value.toInt());
+                    });
+                  },
+                  onChangeStart: (double value) {
+                    setState(() {
+                      _sliderTouch = true;
+                    });
+                  },
+                  onChangeEnd: (double value) {
+                    _sliderTouch = false;
+                    _audioPlayer.seek(Duration(seconds: value.toInt()));
+                  },
                 ),
-              
-              ],
-            ),
-            const SizedBox(height: 20)
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          IconButton(
+                            icon: Icon(
+                              Icons.shuffle,
+                              color: _shuffle ? Colors.white : Colors.blueGrey,
+                              size: 36.0,
+                            ),
+                            onPressed: _shuffleTracksBtn,
+                          ),
+                          IconButton(
+                            icon: Icon(
+                              _repeat == Repeating.repeatOne
+                                  ? Icons.repeat_one
+                                  : Icons.repeat,
+                              color: _repeat == Repeating.noRepeat
+                                  ? Colors.blueGrey
+                                  : Colors.white,
+                              size: 36.0,
+                            ),
+                            onPressed: _repeatTracksBtn,
+                          ),
+                        ]
+                    ),
+
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: <Widget>[
+                          IconButton(
+                            icon: const Icon(
+                              Icons.skip_previous,
+                              size: 36.0,
+                            ),
+                            onPressed: _prevTrackBtn,
+                          ),
+                          IconButton(
+                            icon: Icon(
+                              _icon,
+                              size: 36.0,
+                            ),
+                            onPressed: _playBtn,
+                          ),
+                          IconButton(
+                            icon: const Icon(
+                              Icons.skip_next,
+                              size: 36.0,
+                            ),
+                            onPressed: _nextTrackBtn,
+                          ),
+                        ]
+                    ),
+
+                  ],
+                ),
+                const SizedBox(height: 20)
+              ]
+            )
+
+
           ],
         ),
       )
