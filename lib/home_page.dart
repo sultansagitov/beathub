@@ -21,58 +21,53 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _onTrackChanged(int trackIndex) {
-    _pageController.jumpToPage(trackIndex);  // Переход на нужную страницу
+    _pageController.jumpToPage(trackIndex);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inverseSurface,
-        title: Text(widget.title),
-      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             _playerKey.currentState != null &&
-                _playerKey.currentState!.play != Play.notStarted
+              _playerKey.currentState!.play != Play.notStarted
                 ? Expanded(
-              child: PageView.builder(
-                controller: _pageController,
-                onPageChanged: (index) async {
-                  // Свайп меняет трек и изображение
-                  await _playerKey.currentState!.playTrack(index, fromPageView: true);
-                  setState(() {});
-                },
-                itemCount: _playerKey.currentState!.tracks.length,
-                itemBuilder: (context, index) {
-                  return Image(
-                    image: AssetImage(_playerKey.currentState!.tracks[index]["image"]),
-                    width: 370,
-                  );
-                },
-              ),
-            )
+                  child: PageView.builder(
+                    controller: _pageController,
+                    onPageChanged: (index) async {
+                      await _playerKey.currentState!.playTrack(index, fromPageView: true);
+                      setState(() {});
+                    },
+                    itemCount: _playerKey.currentState!.tracks.length,
+                    itemBuilder: (context, index) {
+                      return Image(
+                        image: AssetImage(_playerKey.currentState!.tracks[index]["image"]),
+                        width: 370,
+                      );
+                    },
+                  ),
+                )
                 : Container(),
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                _playerKey.currentState != null
-                    ? SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 20, right: 20),
-                    child: Text(
-                      _playerKey.currentState!.currentTrackIndex != -1
-                          ? _playerKey.currentState!.tracks[
-                      _playerKey.currentState!.currentTrackIndex]
-                      ["name"]!
+                _playerKey.currentState != null ?
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 20, right: 20),
+                      child: Text(
+                        _playerKey.currentState!.currentTrackIndex != -1 ?
+                          _playerKey.currentState!.tracks[
+                            _playerKey.currentState!.currentTrackIndex
+                          ]["name"]!
                           : "",
+                      ),
                     ),
-                  ),
-                )
-                    : Container(),
+                  )
+                  : Container(),
                 Slider(
                   min: 0.0,
                   max: _playerKey.currentState != null
@@ -106,10 +101,8 @@ class _HomePageState extends State<HomePage> {
                 ),
                 Player(
                   key: _playerKey,
-                  onPlayerStateChanged: () {
-                    setState(() {});
-                  },
-                  onTrackChanged: _onTrackChanged,  // Передача обратного вызова для обновления PageView
+                  onPlayerStateChanged: () { setState(() {}); },
+                  onTrackChanged: _onTrackChanged,
                 ),
                 const SizedBox(width: 40, height: 20),
               ],
