@@ -17,14 +17,23 @@ enum Repeating {
 }
 
 typedef OnPlayerStateChanged = void Function();
+typedef OnTrackChanged = void Function(int trackIndex);
+
 
 class Player extends StatefulWidget {
   final OnPlayerStateChanged onPlayerStateChanged;
-  const Player({super.key, required this.onPlayerStateChanged});
+  final OnTrackChanged onTrackChanged;
+
+  const Player({
+    super.key,
+    required this.onPlayerStateChanged,
+    required this.onTrackChanged,
+  });
 
   @override
   PlayerState createState() => PlayerState();
 }
+
 
 class PlayerState extends State<Player> {
   late final AudioPlayer audioPlayer;
@@ -96,13 +105,17 @@ class PlayerState extends State<Player> {
   }
 
 
-  Future<void> playTrack(int index) async {
+  Future<void> playTrack(int index, {bool fromPageView = false}) async {
     await audioPlayer.stop();
     await audioPlayer.play(AssetSource(tracks[index]["path"]!));
     setState(() {
       play = Play.playing;
+      currentTrackIndex = index;
       updateIcon();
       widget.onPlayerStateChanged();
+      if (!fromPageView) {
+        widget.onTrackChanged(index);
+      }
     });
   }
 
@@ -173,47 +186,24 @@ class PlayerState extends State<Player> {
   Future<void> nextTrackBtn() async {
     int curr = currentTrackIndex;
 
-    if (currentTrackIndex == -1) {
-      curr = 0;
-    } else if (shuffle) {
+    if (shuffle) {
       int rand;
-   
       do {
         rand = Random().nextInt(tracks.length);
       } while (curr == rand);
-   
       curr = rand;
     } else {
       curr = (currentTrackIndex + 1) % tracks.length;
     }
 
-    await audioPlayer.play(AssetSource(tracks[curr]["path"]!));
-  
-    setState(() {
-      currentTrackIndex = curr;
-      widget.onPlayerStateChanged();
-    });
+    await playTrack(curr);
   }
+
 
   Future<void> prevTrackBtn() async {
     int curr = currentTrackIndex;
-    if (currentTrackIndex == -1) {
-      curr = 0;
-    } else if (shuffle) {
-      int rand;
-      do {
-        rand = Random().nextInt(tracks.length);
-      } while (curr == rand);
-      curr = rand;
-    } else {
-      curr = (currentTrackIndex - 1) % tracks.length;
-    }
+    curr = (currentTrackIndex - 1) % tracks.length;
     await playTrack(curr);
-
-    setState(() {
-      currentTrackIndex = curr;
-      widget.onPlayerStateChanged();
-    });
   }
 
   void shuffleTracksBtn() {
