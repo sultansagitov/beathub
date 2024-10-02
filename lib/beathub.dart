@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'home_page.dart';
+import 'main_page.dart';
 
 class Beathub extends StatefulWidget {
   const Beathub({super.key});
@@ -14,6 +14,7 @@ class _BeathubState extends State<Beathub> {
     const title = "Beathub";
     return MaterialApp(
       title: title,
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.orange,
         scaffoldBackgroundColor: Colors.black,
@@ -40,7 +41,7 @@ class _BeathubState extends State<Beathub> {
         useMaterial3: true,
 
       ),
-      home: const HomePage(title: title),
+      home: const MainPage(title: title),
     );
   }
 }
