@@ -32,11 +32,11 @@ class AlbumViewState extends ViewState<AlbumView> {
     }
 
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: RadialGradient(
-            colors: [Color(0xFF572200), Colors.black],
+            colors: [playerState.queue.getCurrent()?.mainColor ?? Colors.black, Colors.black],
             radius: 1,
-            center: Alignment(-1, -1)
+            center: const Alignment(-1, -1)
         )
       ),
       child: ListView.builder(

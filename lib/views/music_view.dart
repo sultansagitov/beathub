@@ -39,11 +39,11 @@ class MusicViewState extends ViewState<MusicView> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: RadialGradient(
-          colors: [Color(0xFF572200), Colors.black],
+          colors: [widget.playerKey.currentState?.queue.getCurrent()?.mainColor ?? Colors.white, Colors.black],
           radius: 2,
-          center: Alignment(-1, -1)
+          center: const Alignment(-1, -1)
         )
       ),
       child: Column(

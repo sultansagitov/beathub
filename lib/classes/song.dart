@@ -7,11 +7,15 @@ class Song {
   final Author author;
   final AssetImage image;
   final AssetSource songAsset;
+  late final Color mainColor;
 
   Song({
     required this.name,
     required this.songAsset,
     required this.author,
-    required this.image
-  });
+    required this.image,
+    required String mainColor
+  }) {
+    this.mainColor = Color(int.parse("40$mainColor", radix: 16));
+  }
 }

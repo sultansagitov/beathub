@@ -55,11 +55,13 @@ class PlayerState extends State<Player> {
         var name = json["name"];
         var path = json["path"];
         var image = json["image"];
+        var color = json["color"];
         var song = Song(
           name: name,
           songAsset: AssetSource(path),
           author: Author(name: "My Group Name"),
-          image: AssetImage(image)
+          image: AssetImage(image),
+          mainColor: color,
         );
         queue.add(song);
       }
