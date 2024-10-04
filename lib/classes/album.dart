@@ -63,6 +63,8 @@ class Album {
   void changeShuffled() => shuffled = !shuffled;
 
   int getCount() => songs.length;
+  bool isCurrent(int index) => this.index == index;
+
   bool isStarted() => index != -1;
   bool isFirst() => index == 0;
   bool isLast() => index == songs.length - 1;

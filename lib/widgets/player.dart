@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:beathub/classes/Author.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -9,16 +10,18 @@ import 'package:beathub/classes/enums.dart';
 
 typedef OnPlayerStateChanged = void Function();
 typedef OnTrackChanged = void Function(int index);
-
+typedef OnAlbumPressed = void Function();
 
 class Player extends StatefulWidget {
   final OnPlayerStateChanged onPlayerStateChanged;
   final OnTrackChanged onTrackChanged;
+  final OnAlbumPressed onAlbumPressed;
 
   const Player({
     super.key,
     required this.onPlayerStateChanged,
     required this.onTrackChanged,
+    required this.onAlbumPressed,
   });
 
   @override
@@ -55,6 +58,7 @@ class PlayerState extends State<Player> {
         var song = Song(
           name: name,
           songAsset: AssetSource(path),
+          author: Author(name: "My Group Name"),
           image: AssetImage(image)
         );
         queue.add(song);
@@ -94,7 +98,7 @@ class PlayerState extends State<Player> {
   }
 
 
-  Future<void> playTrack(Song song, {bool fromPageView = false}) async {
+  Future<void> playTrack(Song song, {bool fromView = false}) async {
     await audioPlayer.stop();
     await audioPlayer.play(song.songAsset);
     queue.updateIndex(song);
@@ -102,15 +106,15 @@ class PlayerState extends State<Player> {
       queue.play = Play.playing;
       updateIcon();
       widget.onPlayerStateChanged();
-      if (!fromPageView) {
+      if (!fromView) {
         widget.onTrackChanged(queue.index);
       }
     });
   }
 
 
-  Future<void> playTrackByIndex(int index, {bool fromPageView = false}) async {
-    await playTrack(queue.get(index), fromPageView: fromPageView);
+  Future<void> playTrackByIndex(int index, {bool fromView = false}) async {
+    await playTrack(queue.get(index), fromView: fromView);
 
   }
 
@@ -199,6 +203,14 @@ class PlayerState extends State<Player> {
               size: 36.0,
             ),
             onPressed: repeatTracksBtn,
+          ),
+          IconButton(
+            icon: const Icon(
+              Icons.list,
+              color: Colors.white,
+              size: 36.0,
+            ),
+            onPressed: widget.onAlbumPressed,
           ),
         ]
       ),

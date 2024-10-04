@@ -1,3 +1,5 @@
+import 'package:beathub/views/album_view.dart';
+import 'package:beathub/views/view.dart';
 import 'package:flutter/material.dart';
 import 'package:beathub/views/music_view.dart';
 import 'package:beathub/widgets/player.dart';
@@ -13,18 +15,19 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   final GlobalKey<PlayerState> _playerKey = GlobalKey<PlayerState>();
-  final GlobalKey<MusicViewState> _musicViewKey = GlobalKey<MusicViewState>();
+  final GlobalKey<ViewState> _viewKey = GlobalKey<ViewState>();
+  bool albumOpened = false;
 
-  _onPlayerStateChanged() {
+  void _onTrackChanged(int trackIndex) =>
+      _viewKey.currentState?.onTrackChanged(trackIndex);
+
+  void _onPlayerStateChanged() =>
+      _viewKey.currentState?.onPlayerStateChanged();
+
+  void _onAlbumPressed() {
     setState(() {
-      _musicViewKey.currentState?.playerState = _playerKey.currentState;
-      _musicViewKey.currentState?.queue = _playerKey.currentState?.queue;
-      _musicViewKey.currentState?.song = _playerKey.currentState?.queue.getCurrent();
+      albumOpened = !albumOpened;
     });
-  }
-
-  void _onTrackChanged(int trackIndex) {
-    _musicViewKey.currentState?.onTrackChanged(trackIndex);
   }
 
   @override
@@ -34,15 +37,21 @@ class _MainPageState extends State<MainPage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
-            child: MusicView(
-              key: _musicViewKey,
-              playerKey: _playerKey,
-            ),
+            child:  albumOpened
+              ? AlbumView(
+                  key: _viewKey,
+                  playerKey: _playerKey,
+                )
+              : MusicView(
+                  key: _viewKey,
+                  playerKey: _playerKey
+                ),
           ),
           Player(
             key: _playerKey,
             onPlayerStateChanged: _onPlayerStateChanged,
             onTrackChanged: _onTrackChanged,
+            onAlbumPressed: _onAlbumPressed,
           ),
           const SizedBox(height: 20),
         ],

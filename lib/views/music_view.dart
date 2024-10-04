@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:beathub/classes/enums.dart';
-import 'package:beathub/classes/album.dart';
-import 'package:beathub/classes/song.dart';
+import 'package:beathub/views/view.dart';
 import 'package:beathub/widgets/player.dart';
 
 class MusicView extends StatefulWidget {
@@ -14,11 +13,8 @@ class MusicView extends StatefulWidget {
   State<MusicView> createState() => MusicViewState();
 }
 
-class MusicViewState extends State<MusicView> {
+class MusicViewState extends ViewState<MusicView> {
   final PageController _pageController = PageController();
-  PlayerState? playerState;
-  Album? queue;
-  Song? song;
 
   @override
   void dispose() {
@@ -26,77 +22,103 @@ class MusicViewState extends State<MusicView> {
     super.dispose();
   }
 
+  @override
   void onTrackChanged(int trackIndex) {
-    _pageController.jumpToPage(trackIndex);
+    _pageController.animateToPage(
+      trackIndex,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  @override
+  void onPlayerStateChanged() {
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        Expanded(
-          child:
-            (playerState != null && queue?.play != Play.notStarted) ?
-              PageView.builder(
-                controller: _pageController,
-                onPageChanged: (index) async {
-                  await playerState!.playTrackByIndex(index, fromPageView: true);
-                  setState(() {});
-                },
-                itemCount: queue?.getCount(),
-                itemBuilder: (context, index) {
-                  return Image(
-                    image: queue!.get(index).image,
-                    width: double.infinity,
-                    height: 100,
-                    fit: BoxFit.contain,
-                  );
-                },
-              )
-              : Container(),
-          ),
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: RadialGradient(
+          colors: [Color(0xFF572200), Colors.black],
+          radius: 2,
+          center: Alignment(-1, -1)
+        )
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Expanded(
+            child: (
+              widget.playerKey.currentState != null &&
+              widget.playerKey.currentState?.queue.play != Play.notStarted
+            )
+              ? PageView.builder(
+                  controller: _pageController,
 
-        if (playerState != null)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Text(
-                song?.name ?? "",
-                style: const TextStyle(fontSize: 18),
+                  onPageChanged: (index) async {
+                    await widget.playerKey.currentState!.playTrackByIndex(index, fromView: true);
+                    setState(() {});
+                  },
+                  itemCount: widget.playerKey.currentState?.queue.getCount(),
+                  itemBuilder: (context, index) => Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 40,
+                      vertical: 0
+                    ),
+                    child: Image(
+                        image: widget.playerKey.currentState!.queue.get(index).image,
+                        width: 100,
+                        height: 100,
+                        fit: BoxFit.contain,
+                      ),
+                  ),
+                )
+              : Container(),
+            ),
+
+          if (widget.playerKey.currentState != null)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Text(
+                  widget.playerKey.currentState?.queue.getCurrent()?.name ?? "",
+                  style: const TextStyle(fontSize: 18),
+                ),
               ),
             ),
-          ),
 
-        if (playerState != null)
-          Slider(
-            min: 0.0,
-            max: playerState != null
-                ? queue!.duration?.inSeconds.toDouble() ?? 0
+          if (widget.playerKey.currentState != null)
+            Slider(
+              min: 0.0,
+              max: widget.playerKey.currentState != null
+                ? widget.playerKey.currentState!.queue.duration?.inSeconds.toDouble() ?? 0
                 : 0,
-            value: playerState != null
-                ? queue!.position?.inSeconds.toDouble() ?? 0
+              value: widget.playerKey.currentState != null
+                ? widget.playerKey.currentState!.queue.position?.inSeconds.toDouble() ?? 0
                 : 0,
-            onChanged: (double value) {
-              setState(() {
-                if (playerState != null) {
-                  queue!.position = Duration(seconds: value.toInt());
-                }
-              });
-            },
-            onChangeStart: (double value) {
-              setState(() {
-                playerState?.sliderTouch = true;
-              });
-            },
-            onChangeEnd: (double value) {
-              playerState?.sliderTouch = false;
-              playerState?.audioPlayer
+              onChanged: (double value) {
+                setState(() {
+                  if (widget.playerKey.currentState != null) {
+                    widget.playerKey.currentState!.queue.position = Duration(seconds: value.toInt());
+                  }
+                });
+              },
+              onChangeStart: (double value) {
+                setState(() {
+                  widget.playerKey.currentState?.sliderTouch = true;
+                });
+              },
+              onChangeEnd: (double value) {
+                widget.playerKey.currentState?.sliderTouch = false;
+                widget.playerKey.currentState?.audioPlayer
                   .seek(Duration(seconds: value.toInt()));
-            },
-          ),
-      ],
+              },
+            ),
+        ],
+      ),
     );
   }
 }
