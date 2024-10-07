@@ -14,14 +14,14 @@ typedef OnAlbumPressed = void Function();
 
 class Player extends StatefulWidget {
   final OnPlayerStateChanged onPlayerStateChanged;
-  final OnTrackChanged onTrackChanged;
   final OnAlbumPressed onAlbumPressed;
+  final OnTrackChanged onTrackChanged;
 
   const Player({
     super.key,
     required this.onPlayerStateChanged,
-    required this.onTrackChanged,
     required this.onAlbumPressed,
+    required this.onTrackChanged,
   });
 
   @override
@@ -56,25 +56,30 @@ class PlayerState extends State<Player> {
         var path = json["path"];
         var image = json["image"];
         var color = json["color"];
-        var song = Song(
+        queue.add(Song(
           name: name,
           songAsset: AssetSource(path),
           author: Author(name: "My Group Name"),
           image: AssetImage(image),
           mainColor: color,
-        );
-        queue.add(song);
+        ));
       }
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        setState(() {
+          widget.onPlayerStateChanged();
+          widget.onTrackChanged(queue.index);
+        });
+      });
     });
 
-    audioPlayer.onDurationChanged.listen((Duration _duration) => setState(() {
-      queue.duration = _duration;
+    audioPlayer.onDurationChanged.listen((Duration duration) => setState(() {
+      queue.duration = duration;
       widget.onPlayerStateChanged();
     }));
 
-    audioPlayer.onPositionChanged.listen((Duration _position) => setState(() {
+    audioPlayer.onPositionChanged.listen((Duration position) => setState(() {
       if (!sliderTouch) {
-        queue.position = _position;
+        queue.position = position;
         widget.onPlayerStateChanged();
       }
     }));
@@ -100,7 +105,7 @@ class PlayerState extends State<Player> {
   }
 
 
-  Future<void> playTrack(Song song, {bool fromView = false}) async {
+  Future<void> playTrack(Song song) async {
     await audioPlayer.stop();
     await audioPlayer.play(song.songAsset);
     queue.updateIndex(song);
@@ -108,16 +113,13 @@ class PlayerState extends State<Player> {
       queue.play = Play.playing;
       updateIcon();
       widget.onPlayerStateChanged();
-      if (!fromView) {
-        widget.onTrackChanged(queue.index);
-      }
+      widget.onTrackChanged(queue.index);
     });
   }
 
 
-  Future<void> playTrackByIndex(int index, {bool fromView = false}) async {
-    await playTrack(queue.get(index), fromView: fromView);
-
+  Future<void> playTrackByIndex(int index) async {
+    await playTrack(queue.get(index));
   }
 
   Future<void> playBtn() async {
@@ -143,6 +145,7 @@ class PlayerState extends State<Player> {
       updateIcon();
       widget.onPlayerStateChanged();
     });
+
   }
 
   Future<void> nextTrack() async {
@@ -163,14 +166,11 @@ class PlayerState extends State<Player> {
   });
 
   void repeatTracksBtn() => setState(() {
-    if (queue.repeat == Repeating.repeat) {
-      queue.repeat = Repeating.repeatOne;
-    } else {
-      queue.repeat = Repeating.repeat;
-    }
+    queue.repeat = queue.repeat == Repeating.repeat
+        ? Repeating.repeatOne
+        : Repeating.repeat;
     widget.onPlayerStateChanged();
   });
-
 
   @override
   void dispose() {
@@ -179,71 +179,106 @@ class PlayerState extends State<Player> {
   }
 
 
+  Widget _buildSlider() {
+    return Slider(
+      min: 0.0,
+      max: queue.duration?.inSeconds.toDouble() ?? 0,
+      value: queue.position?.inSeconds.toDouble() ?? 0,
+      activeColor: queue.getCurrent()?.mainColor.withAlpha(255),
+      onChanged: (double value) => setState(() {
+        queue.position = Duration(seconds: value.toInt());
+      }),
+      onChangeStart: (double value) => setState(() {
+        sliderTouch = true;
+      }),
+      onChangeEnd: (double value) {
+        sliderTouch = false;
+        audioPlayer.seek(Duration(seconds: value.toInt()));
+      }
+    );
+  }
+
   @override
-  Widget build(BuildContext context) => Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: <Widget>[
-      Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: <Widget>[
-          IconButton(
-            icon: Icon(
-              Icons.shuffle,
-              color: queue.shuffled
-                ? Colors.white
-                : Colors.blueGrey,
-              size: 36.0,
-            ),
-           onPressed: shuffleTracksBtn,
-          ),
-          IconButton(
-            icon: Icon(
-              queue.repeat == Repeating.repeatOne
-                  ? Icons.repeat_one
-                  : Icons.repeat,
-              color: Colors.white,
-              size: 36.0,
-            ),
-            onPressed: repeatTracksBtn,
-          ),
-          IconButton(
-            icon: const Icon(
-              Icons.list,
-              color: Colors.white,
-              size: 36.0,
-            ),
-            onPressed: widget.onAlbumPressed,
-          ),
-        ]
-      ),
+  Widget build(BuildContext context) {
+    bool isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
 
-      Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: <Widget>[
-          IconButton(
-            icon: const Icon(
-              Icons.skip_previous,
-              size: 36.0,
+    return Column(
+      children: [
+        if (isPortrait)
+          _buildSlider(),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                IconButton(
+                  icon: Icon(
+                    Icons.shuffle,
+                    color: queue.shuffled
+                      ? Colors.white
+                      : Colors.blueGrey,
+                    size: 36.0,
+                  ),
+                 onPressed: shuffleTracksBtn,
+                ),
+                IconButton(
+                  icon: Icon(
+                    queue.repeat == Repeating.repeatOne
+                        ? Icons.repeat_one
+                        : Icons.repeat,
+                    color: Colors.white,
+                    size: 36.0,
+                  ),
+                  onPressed: repeatTracksBtn,
+                ),
+                IconButton(
+                  icon: const Icon(
+                    Icons.list,
+                    color: Colors.white,
+                    size: 36.0,
+                  ),
+                  onPressed: widget.onAlbumPressed,
+                ),
+              ]
             ),
-            onPressed: prevTrack,
-          ),
-          IconButton(
-            icon: Icon(
-              icon,
-              size: 36.0,
-            ),
-            onPressed: playBtn,
-          ),
-          IconButton(
-            icon: const Icon(
-              Icons.skip_next,
-              size: 36.0,
-            ),
-            onPressed: nextTrackForce,
-          ),
-        ]
-      ),
 
-    ],
-  );
+            if (!isPortrait)
+              Flexible(
+                  fit: FlexFit.loose,
+                  child: _buildSlider()
+              ),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                IconButton(
+                  icon: const Icon(
+                    Icons.skip_previous,
+                    size: 36.0,
+                  ),
+                  onPressed: prevTrack,
+                ),
+                IconButton(
+                  icon: Icon(
+                    icon,
+                    size: 36.0,
+                  ),
+                  onPressed: playBtn,
+                ),
+                IconButton(
+                  icon: const Icon(
+                    Icons.skip_next,
+                    size: 36.0,
+                  ),
+                  onPressed: nextTrackForce,
+                ),
+              ]
+            ),
+
+          ],
+        ),
+      ],
+    );
+  }
 }

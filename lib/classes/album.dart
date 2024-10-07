@@ -24,6 +24,10 @@ class Album {
 
   Song? getCurrent() => index != -1 ? get(index) : null;
 
+  getFirst() => songs.isNotEmpty ? get(0) : null;
+
+  Song? getCurrentOrFirst() => getCurrent() ?? getFirst();
+
   int getRandomIndex() => Random().nextInt(songs.length);
 
   int getOtherRandomIndex() {
@@ -61,11 +65,11 @@ class Album {
   }
 
   void changeShuffled() => shuffled = !shuffled;
-
   int getCount() => songs.length;
-  bool isCurrent(int index) => this.index == index;
 
+  bool isCurrent(int index) => this.index == index;
   bool isStarted() => index != -1;
   bool isFirst() => index == 0;
+
   bool isLast() => index == songs.length - 1;
 }

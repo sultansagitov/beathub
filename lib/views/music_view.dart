@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-
-import 'package:beathub/classes/enums.dart';
-import 'package:beathub/views/view.dart';
 import 'package:beathub/widgets/player.dart';
 
 class MusicView extends StatefulWidget {
@@ -13,8 +10,43 @@ class MusicView extends StatefulWidget {
   State<MusicView> createState() => MusicViewState();
 }
 
-class MusicViewState extends ViewState<MusicView> {
+class MusicViewState extends State<MusicView> {
   final PageController _pageController = PageController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((Duration _) {
+      PlayerState? playerState = widget.playerKey.currentState;
+
+      if (playerState != null && _pageController.hasClients) {
+        int index = playerState.queue.index;
+
+        if (index >= 0) {
+          _pageController.jumpToPage(index);
+        }
+      }
+    });
+  }
+
+  void onPlayerStateChanged() {
+  }
+
+  void onTrackChanged() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        PlayerState? playerState = widget.playerKey.currentState;
+        if (playerState != null) {
+          _pageController.animateToPage(
+            playerState.queue.index,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+          );
+        }
+      });
+    });
+  }
 
   @override
   void dispose() {
@@ -23,102 +55,54 @@ class MusicViewState extends ViewState<MusicView> {
   }
 
   @override
-  void onTrackChanged(int trackIndex) {
-    _pageController.animateToPage(
-      trackIndex,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-    );
-  }
-
-  @override
-  void onPlayerStateChanged() {
-    setState(() {});
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: RadialGradient(
-          colors: [widget.playerKey.currentState?.queue.getCurrent()?.mainColor ?? Colors.white, Colors.black],
-          radius: 2,
-          center: const Alignment(-1, -1)
-        )
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
+    PlayerState? playerState = widget.playerKey.currentState;
+
+    if (playerState == null) {
+      return const Text("No tracks");
+    }
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        if (playerState.queue.getCount() > 0)
           Expanded(
-            child: (
-              widget.playerKey.currentState != null &&
-              widget.playerKey.currentState?.queue.play != Play.notStarted
-            )
-              ? PageView.builder(
-                  controller: _pageController,
-
-                  onPageChanged: (index) async {
-                    await widget.playerKey.currentState!.playTrackByIndex(index, fromView: true);
-                    setState(() {});
-                  },
-                  itemCount: widget.playerKey.currentState?.queue.getCount(),
-                  itemBuilder: (context, index) => Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 40,
-                      vertical: 0
-                    ),
+            child: PageView.builder(
+              controller: _pageController,
+              onPageChanged: (index) async {
+                if (index != playerState.queue.index) {
+                  await playerState.playTrackByIndex(index);
+                }
+              },
+              itemCount: playerState.queue.getCount(),
+              itemBuilder: (context, index) => Container(
+                padding: const EdgeInsets.fromLTRB(40, 25, 40, 0),
+                child: Center(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
                     child: Image(
-                        image: widget.playerKey.currentState!.queue.get(index).image,
-                        width: 100,
-                        height: 100,
-                        fit: BoxFit.contain,
-                      ),
+                      image: playerState.queue.get(index).image,
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                )
-              : Container(),
-            ),
-
-          if (widget.playerKey.currentState != null)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Text(
-                  widget.playerKey.currentState?.queue.getCurrent()?.name ?? "",
-                  style: const TextStyle(fontSize: 18),
                 ),
               ),
             ),
+          )
+        else
+          Container(),
 
-          if (widget.playerKey.currentState != null)
-            Slider(
-              min: 0.0,
-              max: widget.playerKey.currentState != null
-                ? widget.playerKey.currentState!.queue.duration?.inSeconds.toDouble() ?? 0
-                : 0,
-              value: widget.playerKey.currentState != null
-                ? widget.playerKey.currentState!.queue.position?.inSeconds.toDouble() ?? 0
-                : 0,
-              onChanged: (double value) {
-                setState(() {
-                  if (widget.playerKey.currentState != null) {
-                    widget.playerKey.currentState!.queue.position = Duration(seconds: value.toInt());
-                  }
-                });
-              },
-              onChangeStart: (double value) {
-                setState(() {
-                  widget.playerKey.currentState?.sliderTouch = true;
-                });
-              },
-              onChangeEnd: (double value) {
-                widget.playerKey.currentState?.sliderTouch = false;
-                widget.playerKey.currentState?.audioPlayer
-                  .seek(Duration(seconds: value.toInt()));
-              },
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Text(
+              playerState.queue.getCurrentOrFirst()?.name ?? "",
+              style: const TextStyle(fontSize: 18),
             ),
-        ],
-      ),
+          ),
+        ),
+      ],
     );
   }
 }
