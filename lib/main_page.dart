@@ -36,6 +36,11 @@ class _MainPageState extends State<MainPage> {
                 ?? Colors.black;
       }
     });
+
+    _pageController.addListener(() {
+      setState(() {});
+    });
+
   }
 
   void _onPlayerStateChanged() {
@@ -53,15 +58,19 @@ class _MainPageState extends State<MainPage> {
     });
   }
 
-  void _onAlbumPressed() {
-    _pageController.jumpTo(0);
+  void _onTrackChanged(int index, {bool byScroll = false}) {
+    setState(() {
+      _musicViewKey.currentState?.onTrackChanged(index, byScroll: byScroll);
+      _albumViewKey.currentState?.onTrackChanged(index, byScroll: byScroll);
+    });
   }
 
-  void _onTrackChanged(int index) {
-    setState(() {
-      _musicViewKey.currentState?.onTrackChanged();
-      _albumViewKey.currentState?.onTrackChanged();
-    });
+  void _onAlbumViewClose() {
+    _pageController.animateToPage(
+      0,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOut
+    );
   }
 
   @override
@@ -69,36 +78,60 @@ class _MainPageState extends State<MainPage> {
     return Scaffold(
       body: TweenAnimationBuilder(
         tween: ColorTween(begin: _currentColor, end: _nextColor),
-        duration: const Duration(milliseconds: 300),
+        duration: const Duration(seconds: 1),
         builder: (BuildContext context, Color? color, Widget? _) {
           return Container(
             decoration: BoxDecoration(
               gradient: RadialGradient(
-                colors: [color ?? Colors.black, Colors.black],
+                // colors: [color ?? Colors.black, Colors.black],
+                colors: [
+                  color?.withAlpha(128) ?? Colors.white,
+                  color?.withAlpha(64) ?? Colors.white,
+                ],
                 radius: 1.7,
                 center: const Alignment(-1, -1),
               ),
             ),
-            child: Column(
-              children: [
-                Expanded(
-                  child: PageView(
-                    controller: _pageController,
-                    scrollDirection: Axis.vertical,
-                    children: [
-                      MusicView(key: _musicViewKey, playerKey: _playerKey),
-                      AlbumView(key: _albumViewKey, playerKey: _playerKey)
-                    ],
+            child: Stack(
+              children: <Widget>[
+                Column(
+                  children: <Widget>[
+                    Expanded(
+                      child: PageView(
+                        controller: _pageController,
+                        scrollDirection: Axis.vertical,
+                        children: [
+                          MusicView(key: _musicViewKey, playerKey: _playerKey),
+                          AlbumView(
+                            key: _albumViewKey,
+                            playerKey: _playerKey,
+                            onAlbumViewClose: _onAlbumViewClose
+                          )
+                        ],
+                      ),
+                    ),
+                    Player(
+                      key: _playerKey,
+                      onPlayerStateChanged: _onPlayerStateChanged,
+                      onTrackChanged: _onTrackChanged,
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+                ),
+                if (_pageController.positions.isNotEmpty)
+                  Positioned(
+                    left: 50,
+                    top: _pageController.page != null ? ((1.0 - _pageController.page!) * 675 + 50) : 50, // 50-725
+                    // top: 45,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Text(
+                        _playerKey.currentState?.queue.getCurrentOrFirst()?.name ?? "",
+                        style: const TextStyle(fontSize: 18),
+                      ),
+                    ),
                   ),
-                ),
-                Player(
-                  key: _playerKey,
-                  onPlayerStateChanged: _onPlayerStateChanged,
-                  onAlbumPressed: _onAlbumPressed,
-                  onTrackChanged: _onTrackChanged,
-                ),
-                const SizedBox(height: 20),
-              ],
+              ]
             ),
           );
         }

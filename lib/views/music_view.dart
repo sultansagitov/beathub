@@ -13,6 +13,8 @@ class MusicView extends StatefulWidget {
 class MusicViewState extends State<MusicView> {
   final PageController _pageController = PageController();
 
+  bool scrolling = false;
+
   @override
   void initState() {
     super.initState();
@@ -33,19 +35,21 @@ class MusicViewState extends State<MusicView> {
   void onPlayerStateChanged() {
   }
 
-  void onTrackChanged() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      setState(() {
-        PlayerState? playerState = widget.playerKey.currentState;
-        if (playerState != null) {
-          _pageController.animateToPage(
-            playerState.queue.index,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-          );
-        }
-      });
-    });
+  Future<void> onTrackChanged(int index, {bool byScroll = false}) async {
+    PlayerState? playerState = widget.playerKey.currentState;
+    if (
+        playerState != null
+        && !byScroll
+        && _pageController.positions.isNotEmpty
+    ) {
+      scrolling = true;
+      await _pageController.animateToPage(
+        playerState.queue.index,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+      scrolling = false;
+    }
   }
 
   @override
@@ -70,8 +74,12 @@ class MusicViewState extends State<MusicView> {
             child: PageView.builder(
               controller: _pageController,
               onPageChanged: (index) async {
-                if (index != playerState.queue.index) {
-                  await playerState.playTrackByIndex(index);
+                if (
+                    !scrolling
+                    && index != playerState.queue.index
+                    // && _pageController.page == _pageController.page?.round()
+                ) {
+                  await playerState.playTrackByIndex(index, byScroll: true);
                 }
               },
               itemCount: playerState.queue.getCount(),
@@ -91,17 +99,6 @@ class MusicViewState extends State<MusicView> {
           )
         else
           Container(),
-
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Text(
-              playerState.queue.getCurrentOrFirst()?.name ?? "",
-              style: const TextStyle(fontSize: 18),
-            ),
-          ),
-        ),
       ],
     );
   }

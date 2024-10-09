@@ -2,10 +2,17 @@ import 'package:beathub/classes/song.dart';
 import 'package:flutter/material.dart';
 import 'package:beathub/widgets/player.dart';
 
+typedef OnAlbumViewClose = void Function();
+
 class AlbumView extends StatefulWidget {
   final GlobalKey<PlayerState> playerKey;
+  final OnAlbumViewClose onAlbumViewClose;
 
-  const AlbumView({super.key, required this.playerKey});
+  const AlbumView({
+    super.key,
+    required this.playerKey,
+    required this.onAlbumViewClose
+  });
 
   @override
   State<AlbumView> createState() => AlbumViewState();
@@ -16,7 +23,7 @@ class AlbumViewState extends State<AlbumView> {
     setState(() {});
   }
 
-  void onTrackChanged() {}
+  void onTrackChanged(int index, {bool byScroll = false}) {}
 
   @override
   Widget build(BuildContext context) {
@@ -35,21 +42,21 @@ class AlbumViewState extends State<AlbumView> {
             IconButton(
               padding: const EdgeInsets.all(10),
               icon: const Icon(Icons.close),
-              onPressed: () {}
+              onPressed: widget.onAlbumViewClose,
             )
           ],
         ),
         Expanded(
           child: ListView.builder(
             padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-            itemCount: playerState.queue.getCount() * 100,
+            itemCount: playerState.queue.getCount() * 10,
             itemBuilder: (context, index) {
-              final Song track = playerState.queue.get(index % 3);
+              final Song track = playerState.queue.get(index % playerState.queue.getCount());
               final bool isCurrentTrack = playerState.queue.isCurrent(index);
 
               return ListTile(
                 contentPadding: const EdgeInsets.all(4),
-                onTap: () => playerState.playTrackByIndex(index % 3),
+                onTap: () => playerState.playTrackByIndex(index % playerState.queue.getCount()),
                 leading: ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: Image(
