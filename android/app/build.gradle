@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.beathub"
+    namespace = "net.result.beathub"
     compileSdk = flutter.compileSdkVersion
 //    ndkVersion = flutter.ndkVersion
     ndkVersion "25.1.8937393"
