@@ -85,8 +85,8 @@ class _MainPageState extends State<MainPage> {
               gradient: RadialGradient(
                 // colors: [color ?? Colors.black, Colors.black],
                 colors: [
-                  color?.withAlpha(128) ?? Colors.white,
-                  color?.withAlpha(64) ?? Colors.white,
+                  color?.withAlpha(255) ?? Colors.white,
+                  color?.withAlpha(0) ?? Colors.white,
                 ],
                 radius: 1.7,
                 center: const Alignment(-1, -1),
@@ -120,8 +120,10 @@ class _MainPageState extends State<MainPage> {
                 ),
                 if (_pageController.positions.isNotEmpty)
                   Positioned(
-                    left: 50,
-                    top: _pageController.page != null ? ((1.0 - _pageController.page!) * 675 + 50) : 50, // 50-725
+                    left: 24,
+                    top: _pageController.page != null
+                        ? ((1.0 - _pageController.page!) * textheight() + 50) // 50-700
+                        : 50,
                     // top: 45,
                     child: SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
@@ -137,5 +139,11 @@ class _MainPageState extends State<MainPage> {
         }
       )
     );
+  }
+
+  int textheight() {
+    final RenderBox renderBox = _playerKey.currentContext!.findRenderObject() as RenderBox;
+    final position = renderBox.localToGlobal(Offset.zero);
+    return position.dy.round() - 80;
   }
 }

@@ -2,6 +2,8 @@ import 'package:beathub/classes/song.dart';
 import 'package:flutter/material.dart';
 import 'package:beathub/widgets/player.dart';
 
+
+
 typedef OnAlbumViewClose = void Function();
 
 class AlbumView extends StatefulWidget {
@@ -72,7 +74,7 @@ class AlbumViewState extends State<AlbumView> {
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: isCurrentTrack
-                      ? track.mainColor.withAlpha(255)
+                      ? track.light()
                       : Colors.white70,
                   ),
                 ),

@@ -11,6 +11,19 @@ import 'package:beathub/classes/enums.dart';
 typedef OnPlayerStateChanged = void Function();
 typedef OnTrackChanged = void Function(int index, {bool byScroll});
 
+String formatDuration(Duration duration) {
+  String twoDigits(int n) => n.toString().padLeft(2, '0');
+  String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
+  String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+
+  if (duration.inHours > 0) {
+    return "${twoDigits(duration.inHours)}:$twoDigitMinutes:$twoDigitSeconds";
+  } else {
+    return "$twoDigitMinutes:$twoDigitSeconds";
+  }
+}
+
+
 class Player extends StatefulWidget {
   final OnPlayerStateChanged onPlayerStateChanged;
   final OnTrackChanged onTrackChanged;
@@ -175,21 +188,38 @@ class PlayerState extends State<Player> {
 
 
   Widget _buildSlider() {
-    return Slider(
-      min: 0.0,
-      max: queue.duration?.inSeconds.toDouble() ?? 0,
-      value: queue.position?.inSeconds.toDouble() ?? 0,
-      activeColor: queue.getCurrent()?.mainColor.withAlpha(255),
-      onChanged: (double value) => setState(() {
-        queue.position = Duration(seconds: value.toInt());
-      }),
-      onChangeStart: (double value) => setState(() {
-        sliderTouch = true;
-      }),
-      onChangeEnd: (double value) {
-        sliderTouch = false;
-        audioPlayer.seek(Duration(seconds: value.toInt()));
-      }
+    return Column(
+      children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 24),
+          child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                if (queue.position != null)
+                  Text(formatDuration(queue.position!)),
+                if (queue.duration != null)
+                  Text(formatDuration(queue.duration!)),
+              ]
+          ),
+        ),
+
+        Slider(
+          min: 0.0,
+          max: queue.duration?.inSeconds.toDouble() ?? 0,
+          value: queue.position?.inSeconds.toDouble() ?? 0,
+          activeColor: queue.getCurrent()?.light(),
+          onChanged: (double value) => setState(() {
+            queue.position = Duration(seconds: value.toInt());
+          }),
+          onChangeStart: (double value) => setState(() {
+            sliderTouch = true;
+          }),
+          onChangeEnd: (double value) {
+            sliderTouch = false;
+            audioPlayer.seek(Duration(seconds: value.toInt()));
+          }
+        ),
+      ],
     );
   }
 

@@ -60,6 +60,7 @@ class MusicViewState extends State<MusicView> {
 
   @override
   Widget build(BuildContext context) {
+    bool isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
     PlayerState? playerState = widget.playerKey.currentState;
 
     if (playerState == null) {
@@ -91,6 +92,7 @@ class MusicViewState extends State<MusicView> {
                     child: Image(
                       image: playerState.queue.get(index).image,
                       fit: BoxFit.cover,
+                      width: isPortrait ? double.maxFinite : null,
                     ),
                   ),
                 ),
