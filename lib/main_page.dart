@@ -85,10 +85,12 @@ class _MainPageState extends State<MainPage> {
               gradient: RadialGradient(
                 // colors: [color ?? Colors.black, Colors.black],
                 colors: [
-                  color?.withAlpha(255) ?? Colors.white,
+                  color?.withAlpha(192) ?? Colors.white,
                   color?.withAlpha(0) ?? Colors.white,
                 ],
-                radius: 1.7,
+                radius: _pageController.hasClients
+                    ? (1 - _pageController.page!) * 1.5 + 0.5
+                    : 1,
                 center: const Alignment(-1, -1),
               ),
             ),
@@ -118,13 +120,13 @@ class _MainPageState extends State<MainPage> {
                     const SizedBox(height: 20),
                   ],
                 ),
-                if (_pageController.positions.isNotEmpty)
+                if (_pageController.hasClients
+                    && _pageController.positions.isNotEmpty)
                   Positioned(
                     left: 24,
                     top: _pageController.page != null
                         ? ((1.0 - _pageController.page!) * textheight() + 50) // 50-700
                         : 50,
-                    // top: 45,
                     child: SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Text(
