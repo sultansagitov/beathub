@@ -90,7 +90,7 @@ class MusicViewState extends State<MusicView> {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(10),
                     child: Image(
-                      image: playerState.queue.get(index).image,
+                      image: playerState.queue.get(index).album.image,
                       fit: BoxFit.cover,
                       width: isPortrait ? double.maxFinite : null,
                     ),

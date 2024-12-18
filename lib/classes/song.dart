@@ -1,28 +1,26 @@
 import 'dart:math';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:beathub/classes/image_album.dart';
 import 'package:flutter/material.dart';
 import 'package:palette_generator/palette_generator.dart';
-import 'package:beathub/classes/Author.dart';
 
 class Song {
   final String name;
-  final Author author;
-  final AssetImage image;
   final AssetSource songAsset;
+  final ImageAlbum album;
   late final Color mainColor;
 
   Song({
     required this.name,
     required this.songAsset,
-    required this.author,
-    required this.image,
+    required this.album,
   }) {
     _setMainColorFromImage();
   }
 
   Future<void> _setMainColorFromImage() async {
     PaletteGenerator paletteGenerator =
-      await PaletteGenerator.fromImageProvider(image);
+      await PaletteGenerator.fromImageProvider(album.image);
     mainColor = paletteGenerator.dominantColor?.color ?? Colors.black;
   }
 

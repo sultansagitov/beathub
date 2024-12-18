@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:beathub/classes/Author.dart';
+import 'package:beathub/classes/image_album.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -48,7 +48,7 @@ class PlayerState extends State<Player> {
 
   Future<Map<String, dynamic>> loadSongs() async {
     // Load the JSON file from assets
-    final String jsonString = await rootBundle.loadString('assets/songs/songs.json');
+    final String jsonString = await rootBundle.loadString('assets/songs.json');
 
     // Decode the JSON string into a Map
     final Map<String, dynamic> jsonMap = json.decode(jsonString);
@@ -59,26 +59,41 @@ class PlayerState extends State<Player> {
   @override
   void initState() {
     super.initState();
-
     loadSongs().then((value) {
-      for (var json in value["songs"] ) {
-        var name = json["name"];
-        var path = json["path"];
-        var image = json["image"];
-        queue.add(Song(
-          name: name,
-          songAsset: AssetSource(path),
-          author: Author(name: "My Group Name"),
-          image: AssetImage(image),
-        ));
-      }
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        setState(() {
-          widget.onPlayerStateChanged();
-          widget.onTrackChanged(queue.index);
-        });
+        try {
+          // Create a map of album names to their image paths
+          List<ImageAlbum> imageAlbums = [];
+          for (var albumData in value["albums"]) {
+            imageAlbums.add(ImageAlbum(albumData["name"], albumData["image"]));
+          }
+
+          for (var json in value["songs"]) {
+            var name = json["name"];
+            var albumName = json["album"];
+            var path = json["song"];
+
+            var album = imageAlbums.firstWhere((al) => al.name == albumName);
+
+            Song song = Song(
+              name: name,
+              songAsset: AssetSource(path),
+              album: album
+            );
+
+            queue.add(song);
+          }
+
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            setState(() {
+              widget.onPlayerStateChanged();
+              widget.onTrackChanged(queue.index);
+            });
+          });
+        } catch (e) {
+          print("Error loading songs: $e");
+        }
       });
-    });
+
 
     audioPlayer.onDurationChanged.listen((Duration duration) => setState(() {
       queue.duration = duration;

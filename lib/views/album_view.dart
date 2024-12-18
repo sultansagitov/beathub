@@ -62,7 +62,7 @@ class AlbumViewState extends State<AlbumView> {
                 leading: ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: Image(
-                    image: track.image,
+                    image: track.album.image,
                     width: 50,
                     height: 50,
                     fit: BoxFit.cover,
@@ -79,7 +79,7 @@ class AlbumViewState extends State<AlbumView> {
                   ),
                 ),
                 subtitle: Text(
-                  track.author.name,
+                  track.album.name,
                   style: TextStyle(
                     fontSize: 14,
                     color: isCurrentTrack
