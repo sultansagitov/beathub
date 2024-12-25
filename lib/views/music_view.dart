@@ -93,6 +93,7 @@ class MusicViewState extends State<MusicView> {
                       image: playerState.queue.get(index).album.image,
                       fit: BoxFit.cover,
                       width: isPortrait ? double.maxFinite : null,
+                      height: !isPortrait ? double.maxFinite : null,
                     ),
                   ),
                 ),
