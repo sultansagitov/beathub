@@ -99,9 +99,7 @@ class MusicViewState extends State<MusicView> {
                 ),
               ),
             ),
-          )
-        else
-          Container(),
+          ),
       ],
     );
   }

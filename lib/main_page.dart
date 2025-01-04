@@ -1,5 +1,5 @@
-import 'package:beathub/views/album_view.dart';
 import 'package:flutter/material.dart';
+import 'package:beathub/views/queue_view.dart';
 import 'package:beathub/views/music_view.dart';
 import 'package:beathub/widgets/player.dart';
 
@@ -15,7 +15,7 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   final GlobalKey<PlayerState> _playerKey = GlobalKey<PlayerState>();
   final GlobalKey<MusicViewState> _musicViewKey = GlobalKey<MusicViewState>();
-  final GlobalKey<AlbumViewState> _albumViewKey = GlobalKey<AlbumViewState>();
+  final GlobalKey<QueueViewState> _albumViewKey = GlobalKey<QueueViewState>();
   final PageController _pageController = PageController();
 
   Color _currentColor = Colors.black;
@@ -29,10 +29,10 @@ class _MainPageState extends State<MainPage> {
     setState(() {
       if (_playerKey.currentState != null) {
         _currentColor =
-            _playerKey.currentState?.queue.getCurrent()?.mainColor
+            _playerKey.currentState?.queue.getCurrent()?.album.mainColor
                 ?? Colors.black;
         _nextColor =
-            _playerKey.currentState!.queue.getCurrent()?.mainColor
+            _playerKey.currentState!.queue.getCurrent()?.album.mainColor
                 ?? Colors.black;
       }
     });
@@ -49,10 +49,10 @@ class _MainPageState extends State<MainPage> {
       _albumViewKey.currentState?.onPlayerStateChanged();
       if (_playerKey.currentState != null) {
         _currentColor =
-            _playerKey.currentState?.queue.getCurrent()?.mainColor
+            _playerKey.currentState?.queue.getCurrent()?.album.mainColor
                 ?? Colors.black;
         _nextColor =
-            _playerKey.currentState!.queue.getCurrent()?.mainColor
+            _playerKey.currentState!.queue.getCurrent()?.album.mainColor
                 ?? Colors.black;
       }
     });
@@ -75,6 +75,8 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
+    var isLightMode = false;
+
     return Scaffold(
       body: TweenAnimationBuilder(
         tween: ColorTween(begin: _currentColor, end: _nextColor),
@@ -83,10 +85,9 @@ class _MainPageState extends State<MainPage> {
           return Container(
             decoration: BoxDecoration(
               gradient: RadialGradient(
-                // colors: [color ?? Colors.black, Colors.black],
                 colors: [
-                  color?.withAlpha(192) ?? Colors.white,
-                  color?.withAlpha(0) ?? Colors.white,
+                  color?.withAlpha(isLightMode ? 127 : 192) ?? Colors.white,
+                  isLightMode ? (color?.withAlpha(127) ?? Colors.white) : Colors.black,
                 ],
                 radius: _pageController.hasClients
                     ? (1 - _pageController.page!) * 1.5 + 0.5
@@ -104,7 +105,7 @@ class _MainPageState extends State<MainPage> {
                         scrollDirection: Axis.vertical,
                         children: [
                           MusicView(key: _musicViewKey, playerKey: _playerKey),
-                          AlbumView(
+                          QueueView(
                             key: _albumViewKey,
                             playerKey: _playerKey,
                             onAlbumViewClose: _onAlbumViewClose

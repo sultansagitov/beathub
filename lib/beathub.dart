@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'main_page.dart';
+import 'package:beathub/main_page.dart';
 
 class Beathub extends StatefulWidget {
   const Beathub({super.key});

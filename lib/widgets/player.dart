@@ -1,9 +1,9 @@
 import 'dart:convert';
-import 'package:beathub/classes/image_album.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:audioplayers/audioplayers.dart';
 
+import 'package:beathub/classes/image_album.dart';
 import 'package:beathub/classes/album.dart';
 import 'package:beathub/classes/song.dart';
 import 'package:beathub/classes/enums.dart';
@@ -76,7 +76,7 @@ class PlayerState extends State<Player> {
 
             Song song = Song(
               name: name,
-              songAsset: AssetSource(path),
+              path: path,
               album: album
             );
 
@@ -222,7 +222,7 @@ class PlayerState extends State<Player> {
           min: 0.0,
           max: queue.duration?.inSeconds.toDouble() ?? 0,
           value: queue.position?.inSeconds.toDouble() ?? 0,
-          activeColor: queue.getCurrent()?.light(),
+          activeColor: queue.getCurrent()?.album.light(),
           onChanged: (double value) => setState(() {
             queue.position = Duration(seconds: value.toInt());
           }),

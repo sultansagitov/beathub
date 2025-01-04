@@ -1,4 +1,4 @@
-package net.result.beathub
+package net.result.android.beathub
 
 import io.flutter.embedding.android.FlutterActivity
 
