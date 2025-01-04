@@ -44,15 +44,12 @@ class PlayerState extends State<Player> {
 
   bool sliderTouch = false;
   IconData icon = Icons.audiotrack;
+  List<ImageAlbum> imageAlbums = [];
   Album queue = Album();
 
   Future<Map<String, dynamic>> loadSongs() async {
-    // Load the JSON file from assets
     final String jsonString = await rootBundle.loadString('assets/songs.json');
-
-    // Decode the JSON string into a Map
     final Map<String, dynamic> jsonMap = json.decode(jsonString);
-
     return jsonMap;
   }
 
@@ -62,7 +59,7 @@ class PlayerState extends State<Player> {
     loadSongs().then((value) {
         try {
           // Create a map of album names to their image paths
-          List<ImageAlbum> imageAlbums = [];
+          imageAlbums = [];
           for (var albumData in value["albums"]) {
             imageAlbums.add(ImageAlbum(albumData["name"], albumData["image"]));
           }

@@ -1,3 +1,7 @@
+import 'dart:math';
+import 'dart:ui';
+
+import 'package:beathub/views/album_view.dart';
 import 'package:flutter/material.dart';
 import 'package:beathub/views/queue_view.dart';
 import 'package:beathub/views/music_view.dart';
@@ -14,8 +18,9 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   final GlobalKey<PlayerState> _playerKey = GlobalKey<PlayerState>();
+  final GlobalKey<AlbumViewState> _albumViewKey = GlobalKey<AlbumViewState>();
   final GlobalKey<MusicViewState> _musicViewKey = GlobalKey<MusicViewState>();
-  final GlobalKey<QueueViewState> _albumViewKey = GlobalKey<QueueViewState>();
+  final GlobalKey<QueueViewState> _queueViewKey = GlobalKey<QueueViewState>();
   final PageController _pageController = PageController();
 
   Color _currentColor = Colors.black;
@@ -45,8 +50,8 @@ class _MainPageState extends State<MainPage> {
 
   void _onPlayerStateChanged() {
     setState(() {
-      _musicViewKey.currentState?.onPlayerStateChanged();
       _albumViewKey.currentState?.onPlayerStateChanged();
+      _queueViewKey.currentState?.onPlayerStateChanged();
       if (_playerKey.currentState != null) {
         _currentColor =
             _playerKey.currentState?.queue.getCurrent()?.album.mainColor
@@ -60,8 +65,8 @@ class _MainPageState extends State<MainPage> {
 
   void _onTrackChanged(int index, {bool byScroll = false}) {
     setState(() {
-      _musicViewKey.currentState?.onTrackChanged(index, byScroll: byScroll);
       _albumViewKey.currentState?.onTrackChanged(index, byScroll: byScroll);
+      _queueViewKey.currentState?.onTrackChanged(index, byScroll: byScroll);
     });
   }
 
@@ -90,7 +95,7 @@ class _MainPageState extends State<MainPage> {
                   isLightMode ? (color?.withAlpha(127) ?? Colors.white) : Colors.black,
                 ],
                 radius: _pageController.hasClients
-                    ? (1 - _pageController.page!) * 1.5 + 0.5
+                    ? radiusFunc(_pageController.page!)
                     : 1,
                 center: const Alignment(-1, -1),
               ),
@@ -104,9 +109,10 @@ class _MainPageState extends State<MainPage> {
                         controller: _pageController,
                         scrollDirection: Axis.vertical,
                         children: [
+                          AlbumView(key: _albumViewKey, playerKey: _playerKey),
                           MusicView(key: _musicViewKey, playerKey: _playerKey),
                           QueueView(
-                            key: _albumViewKey,
+                            key: _queueViewKey,
                             playerKey: _playerKey,
                             onAlbumViewClose: _onAlbumViewClose
                           )
@@ -126,7 +132,7 @@ class _MainPageState extends State<MainPage> {
                   Positioned(
                     left: 24,
                     top: _pageController.page != null
-                        ? ((1.0 - _pageController.page!) * textheight() + 50) // 50-700
+                        ? (textFunc(_pageController.page!) * textHeight() + 50) // 50-700
                         : 50,
                     child: SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
@@ -144,9 +150,18 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
-  int textheight() {
+  int textHeight() {
     final RenderBox renderBox = _playerKey.currentContext!.findRenderObject() as RenderBox;
     final position = renderBox.localToGlobal(Offset.zero);
     return position.dy.round() - 80;
   }
+
+  double radiusFunc(double x) {
+    return -1.5 * pow(1 - x, 2) + 2;
+  }
+
+  double textFunc(double x) {
+    return clampDouble((18 - 9 * x) / 8, 0, 1);
+  }
+
 }
