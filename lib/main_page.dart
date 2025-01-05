@@ -51,6 +51,7 @@ class _MainPageState extends State<MainPage> {
   void _onPlayerStateChanged() {
     setState(() {
       _albumViewKey.currentState?.onPlayerStateChanged();
+      _musicViewKey.currentState?.onPlayerStateChanged();
       _queueViewKey.currentState?.onPlayerStateChanged();
       if (_playerKey.currentState != null) {
         _currentColor =
@@ -66,6 +67,7 @@ class _MainPageState extends State<MainPage> {
   void _onTrackChanged(int index, {bool byScroll = false}) {
     setState(() {
       _albumViewKey.currentState?.onTrackChanged(index, byScroll: byScroll);
+      _musicViewKey.currentState?.onTrackChanged(index, byScroll: byScroll);
       _queueViewKey.currentState?.onTrackChanged(index, byScroll: byScroll);
     });
   }

@@ -1,75 +1,42 @@
 import 'dart:math';
 
-import 'package:beathub/classes/enums.dart';
+import 'package:beathub/classes/author.dart';
 import 'package:beathub/classes/song.dart';
+import 'package:flutter/material.dart';
+import 'package:palette_generator/palette_generator.dart';
 
 class Album {
-  int index = -1;
-  List<Song> songs = [];
+  final String name;
+  final AssetImage image;
+  Color mainColor = Colors.grey;
+  final List<Song> songs = [];
+  late Author author;
 
-  Repeating repeat = Repeating.repeat;
-  bool shuffled = false;
-  Play play = Play.notStarted;
-
-  Duration? duration;
-  Duration? position;
-
-  Album();
-
-  void add(Song song) => songs.add(song);
-
-  void updateIndex(Song song) => index = songs.indexOf(song);
-
-  Song get(int index) => songs[index];
-
-  Song? getCurrent() => index != -1 ? get(index) : null;
-
-  getFirst() => songs.isNotEmpty ? get(0) : null;
-
-  Song? getCurrentOrFirst() => getCurrent() ?? getFirst();
-
-  int getRandomIndex() => Random().nextInt(songs.length);
-
-  int getOtherRandomIndex() {
-    int result;
-    do {
-      result = getRandomIndex();
-    } while (result == index);
-    return result;
+  Album(this.name, String imagePath) : image = AssetImage(imagePath) {
+    _setMainColorFromImage();
   }
 
-  Song? getNextSong({ bool force = false }) {
-    if (!isStarted()) {
-      index = 0;
-    } else {
-      switch (force ? Repeating.repeat : repeat) {
-        case Repeating.repeat:
-          index = (index + 1) % songs.length;
-          break;
-        case Repeating.repeatOne:
-          break;
-      }
-    }
-
-    return getCurrent();
+  Future<void> _setMainColorFromImage() async {
+    PaletteGenerator pg = await PaletteGenerator.fromImageProvider(image);
+    mainColor = pg.dominantColor?.color ?? Colors.grey;
   }
 
-  Song? getPrevSong() {
-    if (!isStarted()) {
-      index = 0;
-    } else {
-      index = (index - 1) % songs.length;
-    }
+  Color light() {
+    var summa = mainColor.r + mainColor.g + mainColor.b;
+    if (summa < 150) return Colors.white;
 
-    return getCurrent();
+    double maximum = max(max(mainColor.r, mainColor.g), mainColor.b);
+
+    return Color.fromRGBO(
+        (mainColor.r / maximum * 255).round(),
+        (mainColor.g / maximum * 255).round(),
+        (mainColor.b / maximum * 255).round(),
+        1.0
+    );
   }
 
-  void changeShuffled() => shuffled = !shuffled;
-  int getCount() => songs.length;
-
-  bool isCurrent(int index) => this.index == index;
-  bool isStarted() => index != -1;
-  bool isFirst() => index == 0;
-
-  bool isLast() => index == songs.length - 1;
+  void addSong(Song song) {
+    songs.add(song);
+    song.album = this;
+  }
 }

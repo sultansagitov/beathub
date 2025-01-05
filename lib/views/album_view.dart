@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:beathub/classes/album.dart';
 import 'package:beathub/widgets/player.dart';
+import 'package:beathub/widgets/album_list.dart';
+import 'package:beathub/widgets/song_list.dart';
 
 class AlbumView extends StatefulWidget {
   final GlobalKey<PlayerState> playerKey;
@@ -11,25 +14,22 @@ class AlbumView extends StatefulWidget {
 }
 
 class AlbumViewState extends State<AlbumView> {
-  void onPlayerStateChanged() {}
+  final GlobalKey<SongListState> songListKey = GlobalKey();
 
-  Future<void> onTrackChanged(int index, {bool byScroll = false}) async {}
+  void onPlayerStateChanged() {
+    setState(() {});
+  }
+
+  void onTrackChanged(int index, {bool byScroll = false}) {
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
     PlayerState? playerState = widget.playerKey.currentState;
 
     if (playerState == null) {
-      return const Text("No tracks");
-    }
-
-    if (playerState.queue.getCount() == 0) {
-      return const Center(
-        child: Text(
-          "No albums available",
-          style: TextStyle(fontSize: 18),
-        ),
-      );
+      return const Center(child: CircularProgressIndicator());
     }
 
     return Column(
@@ -58,58 +58,23 @@ class AlbumViewState extends State<AlbumView> {
           ),
         ),
         SizedBox(
-          height: 250,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: playerState.imageAlbums.length,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemBuilder: (context, index) {
-              final album = playerState.imageAlbums[index];
-              return Padding(
-                padding: const EdgeInsets.only(right: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image(
-                        image: album.image,
-                        fit: BoxFit.cover,
-                        width: 140,
-                        height: 140,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    SizedBox(
-                      width: 140,
-                      child: Text(
-                        album.name,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    SizedBox(
-                      width: 140,
-                      child: Text(
-                        album.name,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
+          height: 180,
+          child: AlbumList(
+            size: 100,
+            playerKey: widget.playerKey,
+            onSelect: (Album album) => setState(() => songListKey.currentState?.currentAlbum = album)
           ),
         ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: SongList(key: songListKey, playerKey: widget.playerKey),
+            ),
+          )
+        ),
+        SizedBox(height: 40)
       ],
     );
   }

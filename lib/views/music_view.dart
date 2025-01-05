@@ -63,8 +63,8 @@ class MusicViewState extends State<MusicView> {
     bool isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
     PlayerState? playerState = widget.playerKey.currentState;
 
-    if (playerState == null) {
-      return const Text("No tracks");
+    if (playerState == null || playerState.queue.songs.isEmpty) {
+      return const Center(child: Text("Track is not started"));
     }
 
     return Column(
@@ -75,11 +75,7 @@ class MusicViewState extends State<MusicView> {
             child: PageView.builder(
               controller: _pageController,
               onPageChanged: (index) async {
-                if (
-                    !scrolling
-                    && index != playerState.queue.index
-                    // && _pageController.page == _pageController.page?.round()
-                ) {
+                if (!scrolling && index != playerState.queue.index) {
                   await playerState.playTrackByIndex(index, byScroll: true);
                 }
               },

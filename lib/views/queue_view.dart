@@ -32,7 +32,7 @@ class QueueViewState extends State<QueueView> {
     final playerState = widget.playerKey.currentState;
 
     if (playerState == null || playerState.queue.getCount() == 0) {
-      return const Center(child: Text('No tracks available'));
+      return const Center(child: Text('No tracks in queue'));
     }
 
     return Column(

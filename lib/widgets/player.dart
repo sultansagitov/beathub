@@ -1,10 +1,11 @@
 import 'dart:convert';
+import 'package:beathub/classes/author.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:audioplayers/audioplayers.dart';
 
-import 'package:beathub/classes/image_album.dart';
 import 'package:beathub/classes/album.dart';
+import 'package:beathub/classes/queue.dart';
 import 'package:beathub/classes/song.dart';
 import 'package:beathub/classes/enums.dart';
 
@@ -44,8 +45,9 @@ class PlayerState extends State<Player> {
 
   bool sliderTouch = false;
   IconData icon = Icons.audiotrack;
-  List<ImageAlbum> imageAlbums = [];
-  Album queue = Album();
+  List<Author> authors = [];
+  List<Album> imageAlbums = [];
+  Queue queue = Queue();
 
   Future<Map<String, dynamic>> loadSongs() async {
     final String jsonString = await rootBundle.loadString('assets/songs.json');
@@ -57,40 +59,47 @@ class PlayerState extends State<Player> {
   void initState() {
     super.initState();
     loadSongs().then((value) {
-        try {
-          // Create a map of album names to their image paths
-          imageAlbums = [];
-          for (var albumData in value["albums"]) {
-            imageAlbums.add(ImageAlbum(albumData["name"], albumData["image"]));
-          }
+      try {
+        // Create a map of album names to their image paths
+        authors = [];
+        imageAlbums = [];
 
-          for (var json in value["songs"]) {
-            var name = json["name"];
-            var albumName = json["album"];
-            var path = json["song"];
-
-            var album = imageAlbums.firstWhere((al) => al.name == albumName);
-
-            Song song = Song(
-              name: name,
-              path: path,
-              album: album
-            );
-
-            queue.add(song);
-          }
-
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            setState(() {
-              widget.onPlayerStateChanged();
-              widget.onTrackChanged(queue.index);
-            });
-          });
-        } catch (e) {
-          print("Error loading songs: $e");
+        for (var authorData in value["authors"]) {
+          authors.add(Author(authorData["name"]));
         }
-      });
 
+        for (var albumData in value["albums"]) {
+          String name = albumData["name"];
+          String imagePath = albumData["image"];
+          String authorName = albumData["author"];
+
+          var author = authors.firstWhere((al) => al.name == authorName);
+          var album = Album(name, imagePath);
+
+          author.addAlbum(album);
+          imageAlbums.add(album);
+        }
+
+        for (var json in value["songs"]) {
+          var name = json["name"];
+          var albumName = json["album"];
+          var path = json["song"];
+
+          var album = imageAlbums.firstWhere((al) => al.name == albumName);
+
+          album.addSong(Song(name: name, path: path));
+        }
+
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          setState(() {
+            widget.onPlayerStateChanged();
+            widget.onTrackChanged(queue.index);
+          });
+        });
+      } catch (e) {
+        print("Error loading songs: $e");
+      }
+    });
 
     audioPlayer.onDurationChanged.listen((Duration duration) => setState(() {
       queue.duration = duration;
@@ -143,45 +152,33 @@ class PlayerState extends State<Player> {
   }
 
   Future<void> playBtn() async {
-    Play play;
+    if (queue.songs.isEmpty) {
+      return;
+    }
 
     switch (queue.play) {
       case Play.notStarted:
-        play = Play.playing;
-        await audioPlayer.play(queue.getNextSong()!.songAsset);
-        break;
+        await play();
+        return;
       case Play.playing:
-        play = Play.paused;
-        await audioPlayer.pause();
-        break;
+        await pause();
+        return;
       case Play.paused:
-        play = Play.playing;
         await audioPlayer.resume();
-        break;
+        setState(() {
+          queue.play = Play.playing;
+          updateIcon();
+          widget.onPlayerStateChanged();
+        });
     }
-
-    setState(() {
-      queue.play = play;
-      updateIcon();
-      widget.onPlayerStateChanged();
-    });
-
   }
 
-  Future<void> nextTrack() async {
-    await playTrack(queue.getNextSong()!);
-  }
-
-  Future<void> nextTrackForce() async {
-    await playTrack(queue.getNextSong(force: true)!);
-  }
-
-  Future<void> prevTrack() async {
-    await playTrack(queue.getPrevSong()!);
-  }
+  Future<void> nextTrack() async => await playTrack(queue.getNextSong()!);
+  Future<void> nextTrackForce() async => await playTrack(queue.getNextSong(force: true)!);
+  Future<void> prevTrack() async => await playTrack(queue.getPrevSong()!);
 
   void shuffleTracksBtn() => setState(() {
-    queue.changeShuffled();
+    queue.shuffle();
     widget.onPlayerStateChanged();
   });
 
@@ -192,48 +189,60 @@ class PlayerState extends State<Player> {
     widget.onPlayerStateChanged();
   });
 
+  Future<void> play() async {
+    await audioPlayer.play(queue.getNextSong()!.songAsset);
+    setState(() {
+      queue.play = Play.playing;
+      updateIcon();
+      widget.onPlayerStateChanged();
+    });
+  }
+
+  Future<void> pause() async {
+    await audioPlayer.pause();
+    setState(() {
+      queue.play = Play.paused;
+      updateIcon();
+      widget.onPlayerStateChanged();
+    });
+  }
+
   @override
   void dispose() {
     audioPlayer.dispose();
     super.dispose();
   }
 
-
-  Widget _buildSlider() {
-    return Column(
-      children: <Widget>[
+  Widget _buildSlider() => Column(
+    children: <Widget>[
+      if (queue.duration != null)
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 24),
           child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                if (queue.position != null)
-                  Text(formatDuration(queue.position!)),
-                if (queue.duration != null)
-                  Text(formatDuration(queue.duration!)),
-              ]
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Text(formatDuration(queue.position)),
+              Text(formatDuration(queue.duration!)),
+            ]
           ),
         ),
 
-        Slider(
-          min: 0.0,
-          max: queue.duration?.inSeconds.toDouble() ?? 0,
-          value: queue.position?.inSeconds.toDouble() ?? 0,
-          activeColor: queue.getCurrent()?.album.light(),
-          onChanged: (double value) => setState(() {
-            queue.position = Duration(seconds: value.toInt());
-          }),
-          onChangeStart: (double value) => setState(() {
-            sliderTouch = true;
-          }),
-          onChangeEnd: (double value) {
-            sliderTouch = false;
-            audioPlayer.seek(Duration(seconds: value.toInt()));
-          }
-        ),
-      ],
-    );
-  }
+      Slider(
+        min: 0.0,
+        max: queue.duration?.inSeconds.toDouble() ?? 0,
+        value: queue.position.inSeconds.toDouble(),
+        activeColor: queue.getCurrent()?.album.light(),
+        onChanged: (double value) => setState(() {
+          queue.position = Duration(seconds: value.toInt());
+        }),
+        onChangeStart: (double value) => setState(() => sliderTouch = true),
+        onChangeEnd: (double value) {
+          sliderTouch = false;
+          audioPlayer.seek(Duration(seconds: value.toInt()));
+        }
+      ),
+    ],
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -282,24 +291,15 @@ class PlayerState extends State<Player> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
                 IconButton(
-                  icon: const Icon(
-                    Icons.skip_previous,
-                    size: 36.0,
-                  ),
+                  icon: const Icon(Icons.skip_previous, size: 36),
                   onPressed: prevTrack,
                 ),
                 IconButton(
-                  icon: Icon(
-                    icon,
-                    size: 36.0,
-                  ),
+                  icon: Icon(icon, size: 36),
                   onPressed: playBtn,
                 ),
                 IconButton(
-                  icon: const Icon(
-                    Icons.skip_next,
-                    size: 36.0,
-                  ),
+                  icon: const Icon(Icons.skip_next, size: 36),
                   onPressed: nextTrackForce,
                 ),
               ]
