@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:beathub/classes/album.dart';
 import 'package:beathub/observer/album_view_closing_notifier.dart';
 import 'package:beathub/observer/player_state_notifier.dart';
 import 'package:beathub/views/album_view.dart';
@@ -139,4 +140,11 @@ class _MainPageState extends State<MainPage> {
   double textFunc(double x) {
     return clampDouble((18 - 9 * x) / 8, 0, 1);
   }
+}
+
+class MainPageData {
+  static double albumScroll = 0;
+  static Album? selectedAlbum;
+  static double selectedAlbumScroll = 0;
+  static double queueScroll = 0;
 }

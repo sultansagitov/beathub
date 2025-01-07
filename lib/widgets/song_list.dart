@@ -1,6 +1,6 @@
 import 'package:beathub/classes/song.dart';
+import 'package:beathub/main_page.dart';
 import 'package:flutter/material.dart';
-import 'package:beathub/classes/album.dart';
 import 'package:beathub/classes/queue.dart';
 import 'package:beathub/widgets/player.dart';
 
@@ -16,13 +16,32 @@ class SongList extends StatefulWidget {
 }
 
 class SongListState extends State<SongList> {
-  Album? currentAlbum;
+  ScrollController scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    scrollController.addListener(() {
+      MainPageData.selectedAlbumScroll = scrollController.position.pixels;
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((Duration _) {
+      scrollController.jumpTo(MainPageData.selectedAlbumScroll);
+    });
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     PlayerState? playerState = widget.playerKey.currentState;
 
-    if (playerState == null || currentAlbum == null) {
+    if (playerState == null || MainPageData.selectedAlbum == null) {
       return Container(
         color: Colors.grey.withAlpha(100),
         child: Center(child: Text("Select album")),
@@ -31,7 +50,7 @@ class SongListState extends State<SongList> {
 
     return Container(
       width: double.maxFinite,
-      color: currentAlbum?.mainColor.withAlpha(100),
+      color: MainPageData.selectedAlbum?.mainColor.withAlpha(100),
       child: Column(
         children: [
           Padding(
@@ -40,12 +59,12 @@ class SongListState extends State<SongList> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  currentAlbum!.name,
+                    MainPageData.selectedAlbum!.name,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)
                 ),
-                if (playerState.queue.linkedAlbum == currentAlbum!)
+                if (playerState.queue.linkedAlbum == MainPageData.selectedAlbum!)
                   Row(
                     children: [
                       Text("in queue"),
@@ -61,7 +80,7 @@ class SongListState extends State<SongList> {
                     onPressed: () async {
                       await playerState.pause();
                       playerState.queue.position = Duration(seconds: 0);
-                      playerState.queue = Queue.fromAlbum(currentAlbum!);
+                      playerState.queue = Queue.fromAlbum(MainPageData.selectedAlbum!);
                       playerState.playBtn();
                     },
                   )
@@ -70,22 +89,23 @@ class SongListState extends State<SongList> {
           ),
           Expanded(
             child: ListView.builder(
+              controller: scrollController,
               padding: const EdgeInsets.all(0.0),
-              itemCount: currentAlbum!.songs.length,
+              itemCount: MainPageData.selectedAlbum!.songs.length,
               itemBuilder: (BuildContext context, int index) {
-                Song song = currentAlbum!.songs[index];
+                Song song = MainPageData.selectedAlbum!.songs[index];
                 return GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () async {
                     await playerState.pause();
-                    if (playerState.queue.linkedAlbum != currentAlbum!) {
-                      playerState.queue = Queue.fromAlbum(currentAlbum!);
+                    if (playerState.queue.linkedAlbum != MainPageData.selectedAlbum!) {
+                      playerState.queue = Queue.fromAlbum(MainPageData.selectedAlbum!);
                     }
                     await playerState.playTrackByIndex(index);
                   },
                   child: Container(
                     decoration: BoxDecoration(
-                      color: playerState.queue.linkedAlbum == currentAlbum!
+                      color: playerState.queue.linkedAlbum == MainPageData.selectedAlbum!
                           && playerState.queue.isCurrent(index)
                           ? Colors.white.withAlpha(64)
                           : null
@@ -93,7 +113,7 @@ class SongListState extends State<SongList> {
                     child: Padding(
                       padding: EdgeInsets.symmetric(vertical: 2, horizontal: 24),
                       child: Container(
-                        decoration: playerState.queue.linkedAlbum != currentAlbum!
+                        decoration: playerState.queue.linkedAlbum != MainPageData.selectedAlbum!
                             || !playerState.queue.isCurrent(index)
                             && !playerState.queue.isCurrent(index - 1)
                           ? BoxDecoration(

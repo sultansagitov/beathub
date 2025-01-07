@@ -1,4 +1,5 @@
 import 'package:beathub/classes/album.dart';
+import 'package:beathub/main_page.dart';
 import 'package:beathub/widgets/player.dart';
 import 'package:flutter/material.dart';
 
@@ -23,6 +24,27 @@ class AlbumList extends StatefulWidget {
 }
 
 class AlbumListState extends State<AlbumList> {
+  ScrollController scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    scrollController.addListener(() {
+      MainPageData.albumScroll = scrollController.position.pixels;
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((Duration _) {
+      scrollController.jumpTo(MainPageData.albumScroll);
+    });
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     PlayerState? playerState = widget.playerKey.currentState;
@@ -32,6 +54,7 @@ class AlbumListState extends State<AlbumList> {
     }
     
     return ListView.builder(
+      controller: scrollController,
       scrollDirection: Axis.horizontal,
       itemCount: playerState.imageAlbums.length,
       itemBuilder: (context, index) {

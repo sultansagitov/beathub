@@ -1,4 +1,5 @@
 import 'package:beathub/classes/song.dart';
+import 'package:beathub/main_page.dart';
 import 'package:beathub/observer/album_view_closing_notifier.dart';
 import 'package:beathub/observer/player_state_notifier.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +18,8 @@ class QueueView extends StatefulWidget {
 }
 
 class QueueViewState extends State<QueueView> {
+  ScrollController scrollController = ScrollController();
+
   void _onPlayerStateChanged() {
     setState(() {});
   }
@@ -24,12 +27,22 @@ class QueueViewState extends State<QueueView> {
   @override
   void initState() {
     super.initState();
+
+    scrollController.addListener(() {
+      MainPageData.queueScroll = scrollController.position.pixels;
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((Duration _) {
+      scrollController.jumpTo(MainPageData.queueScroll);
+    });
+
     PlayerStateNotifier().addListener(_onPlayerStateChanged);
   }
   
   @override
   void dispose() {
     PlayerStateNotifier().removeListener(_onPlayerStateChanged);
+    scrollController.dispose();
     super.dispose();
   }
 
@@ -56,6 +69,7 @@ class QueueViewState extends State<QueueView> {
         ),
         Expanded(
           child: ListView.builder(
+            controller: scrollController,
             padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
             itemCount: playerState.queue.getCount(),
             itemBuilder: (context, index) {

@@ -1,3 +1,4 @@
+import 'package:beathub/main_page.dart';
 import 'package:beathub/observer/player_state_notifier.dart';
 import 'package:beathub/widgets/headers.dart';
 import 'package:flutter/material.dart';
@@ -31,6 +32,7 @@ class AlbumViewState extends State<AlbumView> {
   @override
   void initState() {
     super.initState();
+
     TrackIndexObserver().addListener(_onTrackChanged);
     PlayerStateNotifier().addListener(_onPlayerStateChanged);
   }
@@ -65,9 +67,8 @@ class AlbumViewState extends State<AlbumView> {
             child: AlbumList(
               size: 100,
               playerKey: widget.playerKey,
-              onSelect: (Album album) {
-                setState(() => songListKey.currentState?.currentAlbum = album);
-              }
+              onSelect: (Album album) =>
+                setState(() => MainPageData.selectedAlbum = album)
             ),
           ),
           Expanded(
