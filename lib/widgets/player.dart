@@ -205,13 +205,13 @@ class PlayerState extends State<Player> {
   }
 
   Widget _buildSlider() => Column(
-    children: <Widget>[
+    children: [
       if (queue.duration != null)
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 24),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
+            children: [
               Text(formatDuration(queue.position)),
               Text(formatDuration(queue.duration!)),
             ]
@@ -245,10 +245,10 @@ class PlayerState extends State<Player> {
           _buildSlider(),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
+          children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
+              children: [
                 IconButton(
                   icon: Icon(
                     Icons.shuffle,
@@ -280,7 +280,7 @@ class PlayerState extends State<Player> {
 
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
+              children: [
                 IconButton(
                   icon: const Icon(Icons.skip_previous, size: 36),
                   onPressed: prevTrack,

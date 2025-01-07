@@ -1,4 +1,5 @@
 import 'package:beathub/observer/player_state_notifier.dart';
+import 'package:beathub/widgets/headers.dart';
 import 'package:flutter/material.dart';
 import 'package:beathub/classes/album.dart';
 import 'package:beathub/widgets/player.dart';
@@ -49,52 +50,35 @@ class AlbumViewState extends State<AlbumView> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 40),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Text(
-            "Rizl",
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 24),
+          Header1("Rizl"),
+          const SizedBox(height: 16),
+          Header2("Альбомы beathub"),
+          const SizedBox(height: 8),
+          SizedBox(
+            height: 180,
+            child: AlbumList(
+              size: 100,
+              playerKey: widget.playerKey,
+              onSelect: (Album album) {
+                setState(() => songListKey.currentState?.currentAlbum = album);
+              }
             ),
           ),
-        ),
-        const SizedBox(height: 8),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: const Text(
-            "Альбомы beathub",
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        SizedBox(
-          height: 180,
-          child: AlbumList(
-            size: 100,
-            playerKey: widget.playerKey,
-            onSelect: (Album album) {
-              setState(() => songListKey.currentState?.currentAlbum = album);
-            }
-          ),
-        ),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+          Expanded(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(20),
               child: SongList(key: songListKey, playerKey: widget.playerKey),
-            ),
-          )
-        ),
-        SizedBox(height: 40)
-      ],
+            )
+          ),
+          SizedBox(height: 24)
+        ],
+      ),
     );
   }
 }

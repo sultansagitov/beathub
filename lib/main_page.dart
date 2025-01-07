@@ -85,9 +85,9 @@ class _MainPageState extends State<MainPage> {
               ),
             ),
             child: Stack(
-              children: <Widget>[
+              children: [
                 Column(
-                  children: <Widget>[
+                  children: [
                     Expanded(
                       child: PageView(
                         controller: _pageController,
@@ -139,5 +139,4 @@ class _MainPageState extends State<MainPage> {
   double textFunc(double x) {
     return clampDouble((18 - 9 * x) / 8, 0, 1);
   }
-
 }

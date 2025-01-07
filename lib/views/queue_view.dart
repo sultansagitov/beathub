@@ -37,7 +37,7 @@ class QueueViewState extends State<QueueView> {
   Widget build(BuildContext context) {
     final playerState = widget.playerKey.currentState;
 
-    if (playerState == null || playerState.queue.getCount() == 0) {
+    if (playerState == null || playerState.queue.isEmpty()) {
       return const Center(child: Text('No tracks in queue'));
     }
 
@@ -46,7 +46,7 @@ class QueueViewState extends State<QueueView> {
         const SizedBox(height: 30),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
-          children: <Widget>[
+          children: [
             IconButton(
               padding: const EdgeInsets.all(10),
               icon: const Icon(Icons.close),

@@ -34,7 +34,6 @@ class AlbumListState extends State<AlbumList> {
     return ListView.builder(
       scrollDirection: Axis.horizontal,
       itemCount: playerState.imageAlbums.length,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
       itemBuilder: (context, index) {
         final album = playerState.imageAlbums[index];
         return GestureDetector(

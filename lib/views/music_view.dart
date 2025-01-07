@@ -70,13 +70,13 @@ class MusicViewState extends State<MusicView> {
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        if (playerState.queue.getCount() > 0)
+      children: [
+        if (!playerState.queue.isEmpty())
           Expanded(
             child: PageView.builder(
               controller: _pageController,
               onPageChanged: (index) async {
-                if (!scrolling && index != playerState.queue.index) {
+                if (!scrolling && !playerState.queue.isCurrent(index)) {
                   await playerState.playTrackByIndex(index, byScroll: true);
                 }
               },

@@ -104,6 +104,7 @@ class Queue {
 
   int getCount() => songs.length;
 
+  bool isEmpty() => getCount() == 0;
   bool isCurrent(int index) => this.index == index;
   bool isStarted() => index != -1;
   bool isFirst() => isCurrent(0);
