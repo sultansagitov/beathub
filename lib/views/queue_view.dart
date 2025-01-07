@@ -1,19 +1,15 @@
 import 'package:beathub/classes/song.dart';
+import 'package:beathub/observer/album_view_closing_notifier.dart';
+import 'package:beathub/observer/player_state_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:beathub/widgets/player.dart';
 
-
-
-typedef OnAlbumViewClose = void Function();
-
 class QueueView extends StatefulWidget {
   final GlobalKey<PlayerState> playerKey;
-  final OnAlbumViewClose onAlbumViewClose;
 
   const QueueView({
     super.key,
-    required this.playerKey,
-    required this.onAlbumViewClose
+    required this.playerKey
   });
 
   @override
@@ -21,11 +17,21 @@ class QueueView extends StatefulWidget {
 }
 
 class QueueViewState extends State<QueueView> {
-  void onPlayerStateChanged() {
+  void _onPlayerStateChanged() {
     setState(() {});
   }
-
-  void onTrackChanged(int index, {bool byScroll = false}) {}
+  
+  @override
+  void initState() {
+    super.initState();
+    PlayerStateNotifier().addListener(_onPlayerStateChanged);
+  }
+  
+  @override
+  void dispose() {
+    PlayerStateNotifier().removeListener(_onPlayerStateChanged);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +50,7 @@ class QueueViewState extends State<QueueView> {
             IconButton(
               padding: const EdgeInsets.all(10),
               icon: const Icon(Icons.close),
-              onPressed: widget.onAlbumViewClose,
+              onPressed: AlbumViewClosingNotifier().notifyListeners,
             )
           ],
         ),

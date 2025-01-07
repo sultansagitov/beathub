@@ -1,3 +1,4 @@
+import 'package:beathub/observer/track_index_observer.dart';
 import 'package:flutter/material.dart';
 import 'package:beathub/widgets/player.dart';
 
@@ -15,36 +16,16 @@ class MusicViewState extends State<MusicView> {
 
   bool scrolling = false;
 
-  @override
-  void initState() {
-    super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((Duration _) {
-      PlayerState? playerState = widget.playerKey.currentState;
-
-      if (playerState != null && _pageController.hasClients) {
-        int index = playerState.queue.index;
-
-        if (index >= 0) {
-          _pageController.jumpToPage(index);
-        }
-      }
-    });
-  }
-
-  void onPlayerStateChanged() {
-  }
-
-  Future<void> onTrackChanged(int index, {bool byScroll = false}) async {
+  Future<void> _onTrackChanged(index, { bool byScroll = false }) async {
     PlayerState? playerState = widget.playerKey.currentState;
     if (
-        playerState != null
+    playerState != null
         && !byScroll
         && _pageController.positions.isNotEmpty
     ) {
       scrolling = true;
       await _pageController.animateToPage(
-        playerState.queue.index,
+        index,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
@@ -53,7 +34,27 @@ class MusicViewState extends State<MusicView> {
   }
 
   @override
+  void initState() {
+    super.initState();
+
+    TrackIndexObserver().addListener(_onTrackChanged);
+
+    WidgetsBinding.instance.addPostFrameCallback((Duration _) {
+      PlayerState? playerState = widget.playerKey.currentState;
+
+      if (
+          _pageController.hasClients &&
+          playerState != null &&
+          playerState.queue.isStarted()
+      ) {
+        _pageController.jumpToPage(playerState.queue.index);
+      }
+    });
+  }
+
+  @override
   void dispose() {
+    TrackIndexObserver().removeListener(_onTrackChanged);
     _pageController.dispose();
     super.dispose();
   }

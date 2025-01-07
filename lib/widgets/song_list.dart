@@ -81,10 +81,7 @@ class SongListState extends State<SongList> {
                       if (playerState.queue.linkedAlbum != currentAlbum!) {
                         playerState.queue = Queue.fromAlbum(currentAlbum!);
                       }
-                      await playerState.playTrackByIndex(
-                          index,
-                          byScroll: false
-                      );
+                      await playerState.playTrackByIndex(index);
                     },
                     child: Padding(
                       padding: const EdgeInsets.symmetric(

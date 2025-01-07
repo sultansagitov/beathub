@@ -1,8 +1,11 @@
+import 'package:beathub/observer/player_state_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:beathub/classes/album.dart';
 import 'package:beathub/widgets/player.dart';
 import 'package:beathub/widgets/album_list.dart';
 import 'package:beathub/widgets/song_list.dart';
+
+import 'package:beathub/observer/track_index_observer.dart';
 
 class AlbumView extends StatefulWidget {
   final GlobalKey<PlayerState> playerKey;
@@ -16,12 +19,26 @@ class AlbumView extends StatefulWidget {
 class AlbumViewState extends State<AlbumView> {
   final GlobalKey<SongListState> songListKey = GlobalKey();
 
-  void onPlayerStateChanged() {
+  void _onTrackChanged(_, {bool byScroll = false }) {
     setState(() {});
   }
 
-  void onTrackChanged(int index, {bool byScroll = false}) {
+  void _onPlayerStateChanged() {
     setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    TrackIndexObserver().addListener(_onTrackChanged);
+    PlayerStateNotifier().addListener(_onPlayerStateChanged);
+  }
+
+  @override
+  void dispose() {
+    TrackIndexObserver().removeListener(_onTrackChanged);
+    PlayerStateNotifier().removeListener(_onPlayerStateChanged);
+    super.dispose();
   }
 
   @override
@@ -62,7 +79,9 @@ class AlbumViewState extends State<AlbumView> {
           child: AlbumList(
             size: 100,
             playerKey: widget.playerKey,
-            onSelect: (Album album) => setState(() => songListKey.currentState?.currentAlbum = album)
+            onSelect: (Album album) {
+              setState(() => songListKey.currentState?.currentAlbum = album);
+            }
           ),
         ),
         Expanded(

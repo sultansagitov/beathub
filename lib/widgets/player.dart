@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'package:beathub/classes/author.dart';
+import 'package:beathub/observer/player_state_notifier.dart';
+import 'package:beathub/observer/track_index_observer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -8,9 +10,6 @@ import 'package:beathub/classes/album.dart';
 import 'package:beathub/classes/queue.dart';
 import 'package:beathub/classes/song.dart';
 import 'package:beathub/classes/enums.dart';
-
-typedef OnPlayerStateChanged = void Function();
-typedef OnTrackChanged = void Function(int index, {bool byScroll});
 
 String formatDuration(Duration duration) {
   String twoDigits(int n) => n.toString().padLeft(2, '0');
@@ -24,16 +23,8 @@ String formatDuration(Duration duration) {
   }
 }
 
-
 class Player extends StatefulWidget {
-  final OnPlayerStateChanged onPlayerStateChanged;
-  final OnTrackChanged onTrackChanged;
-
-  const Player({
-    super.key,
-    required this.onPlayerStateChanged,
-    required this.onTrackChanged,
-  });
+  const Player({super.key});
 
   @override
   PlayerState createState() => PlayerState();
@@ -92,8 +83,8 @@ class PlayerState extends State<Player> {
 
         WidgetsBinding.instance.addPostFrameCallback((_) {
           setState(() {
-            widget.onPlayerStateChanged();
-            widget.onTrackChanged(queue.index);
+            PlayerStateNotifier().notifyListeners();
+            TrackIndexObserver().changeTrack(queue.index);
           });
         });
       } catch (e) {
@@ -103,13 +94,13 @@ class PlayerState extends State<Player> {
 
     audioPlayer.onDurationChanged.listen((Duration duration) => setState(() {
       queue.duration = duration;
-      widget.onPlayerStateChanged();
+      PlayerStateNotifier().notifyListeners();
     }));
 
     audioPlayer.onPositionChanged.listen((Duration position) => setState(() {
       if (!sliderTouch) {
         queue.position = position;
-        widget.onPlayerStateChanged();
+        PlayerStateNotifier().notifyListeners();
       }
     }));
 
@@ -141,8 +132,8 @@ class PlayerState extends State<Player> {
     setState(() {
       queue.play = Play.playing;
       updateIcon();
-      widget.onPlayerStateChanged();
-      widget.onTrackChanged(queue.index, byScroll: byScroll);
+      PlayerStateNotifier().notifyListeners();
+      TrackIndexObserver().changeTrack(queue.index, byScroll: byScroll);
     });
   }
 
@@ -168,7 +159,7 @@ class PlayerState extends State<Player> {
         setState(() {
           queue.play = Play.playing;
           updateIcon();
-          widget.onPlayerStateChanged();
+          PlayerStateNotifier().notifyListeners();
         });
     }
   }
@@ -179,14 +170,14 @@ class PlayerState extends State<Player> {
 
   void shuffleTracksBtn() => setState(() {
     queue.shuffle();
-    widget.onPlayerStateChanged();
+    PlayerStateNotifier().notifyListeners();
   });
 
   void repeatTracksBtn() => setState(() {
     queue.repeat = queue.repeat == Repeating.repeat
         ? Repeating.repeatOne
         : Repeating.repeat;
-    widget.onPlayerStateChanged();
+    PlayerStateNotifier().notifyListeners();
   });
 
   Future<void> play() async {
@@ -194,7 +185,7 @@ class PlayerState extends State<Player> {
     setState(() {
       queue.play = Play.playing;
       updateIcon();
-      widget.onPlayerStateChanged();
+      PlayerStateNotifier().notifyListeners();
     });
   }
 
@@ -203,7 +194,7 @@ class PlayerState extends State<Player> {
     setState(() {
       queue.play = Play.paused;
       updateIcon();
-      widget.onPlayerStateChanged();
+      PlayerStateNotifier().notifyListeners();
     });
   }
 

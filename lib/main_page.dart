@@ -1,6 +1,8 @@
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:beathub/observer/album_view_closing_notifier.dart';
+import 'package:beathub/observer/player_state_notifier.dart';
 import 'package:beathub/views/album_view.dart';
 import 'package:flutter/material.dart';
 import 'package:beathub/views/queue_view.dart';
@@ -18,41 +20,13 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   final GlobalKey<PlayerState> _playerKey = GlobalKey<PlayerState>();
-  final GlobalKey<AlbumViewState> _albumViewKey = GlobalKey<AlbumViewState>();
-  final GlobalKey<MusicViewState> _musicViewKey = GlobalKey<MusicViewState>();
-  final GlobalKey<QueueViewState> _queueViewKey = GlobalKey<QueueViewState>();
   final PageController _pageController = PageController();
 
   Color _currentColor = Colors.black;
   Color _nextColor = Colors.black;
 
-  late List<Widget> pages;
-
-  @override
-  void initState() {
-    super.initState();
-    setState(() {
-      if (_playerKey.currentState != null) {
-        _currentColor =
-            _playerKey.currentState?.queue.getCurrent()?.album.mainColor
-                ?? Colors.black;
-        _nextColor =
-            _playerKey.currentState!.queue.getCurrent()?.album.mainColor
-                ?? Colors.black;
-      }
-    });
-
-    _pageController.addListener(() {
-      setState(() {});
-    });
-
-  }
-
   void _onPlayerStateChanged() {
     setState(() {
-      _albumViewKey.currentState?.onPlayerStateChanged();
-      _musicViewKey.currentState?.onPlayerStateChanged();
-      _queueViewKey.currentState?.onPlayerStateChanged();
       if (_playerKey.currentState != null) {
         _currentColor =
             _playerKey.currentState?.queue.getCurrent()?.album.mainColor
@@ -61,14 +35,6 @@ class _MainPageState extends State<MainPage> {
             _playerKey.currentState!.queue.getCurrent()?.album.mainColor
                 ?? Colors.black;
       }
-    });
-  }
-
-  void _onTrackChanged(int index, {bool byScroll = false}) {
-    setState(() {
-      _albumViewKey.currentState?.onTrackChanged(index, byScroll: byScroll);
-      _musicViewKey.currentState?.onTrackChanged(index, byScroll: byScroll);
-      _queueViewKey.currentState?.onTrackChanged(index, byScroll: byScroll);
     });
   }
 
@@ -78,6 +44,22 @@ class _MainPageState extends State<MainPage> {
       duration: const Duration(milliseconds: 500),
       curve: Curves.easeInOut
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController.addListener(() => setState(() {}));
+    PlayerStateNotifier().addListener(_onPlayerStateChanged);
+    AlbumViewClosingNotifier().addListener(_onAlbumViewClose);
+  }
+
+  @override
+  void dispose() {
+    PlayerStateNotifier().removeListener(_onPlayerStateChanged);
+    AlbumViewClosingNotifier().removeListener(_onAlbumViewClose);
+    _pageController.dispose();
+    super.dispose();
   }
 
   @override
@@ -111,21 +93,13 @@ class _MainPageState extends State<MainPage> {
                         controller: _pageController,
                         scrollDirection: Axis.vertical,
                         children: [
-                          AlbumView(key: _albumViewKey, playerKey: _playerKey),
-                          MusicView(key: _musicViewKey, playerKey: _playerKey),
-                          QueueView(
-                            key: _queueViewKey,
-                            playerKey: _playerKey,
-                            onAlbumViewClose: _onAlbumViewClose
-                          )
+                          AlbumView(playerKey: _playerKey),
+                          MusicView(playerKey: _playerKey),
+                          QueueView(playerKey: _playerKey)
                         ],
                       ),
                     ),
-                    Player(
-                      key: _playerKey,
-                      onPlayerStateChanged: _onPlayerStateChanged,
-                      onTrackChanged: _onTrackChanged,
-                    ),
+                    Player(key: _playerKey),
                     const SizedBox(height: 20),
                   ],
                 ),

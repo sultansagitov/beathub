@@ -31,17 +31,16 @@ class _BeathubState extends State<Beathub> {
           headlineSmall: TextStyle(color: Colors.white),
         ),
         buttonTheme: const ButtonThemeData(
-          buttonColor: Colors.orange,  
-          textTheme: ButtonTextTheme.primary,  
+          buttonColor: Colors.orange,
+          textTheme: ButtonTextTheme.primary,
         ),
         floatingActionButtonTheme: const FloatingActionButtonThemeData(
           backgroundColor: Colors.orange, 
         ),
         iconTheme: const IconThemeData(color: Colors.white),
         useMaterial3: true,
-
       ),
-      home: const MainPage(title: title),
+      home: const MainPage(title: title)
     );
   }
 }
