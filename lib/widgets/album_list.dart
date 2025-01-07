@@ -36,7 +36,6 @@ class AlbumListState extends State<AlbumList> {
       itemCount: playerState.imageAlbums.length,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       itemBuilder: (context, index) {
-        print(playerState.imageAlbums.length);
         final album = playerState.imageAlbums[index];
         return GestureDetector(
           onTap: () => setState(() => widget.onSelect(album)),
