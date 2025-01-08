@@ -27,7 +27,9 @@ class SongListState extends State<SongList> {
     });
 
     WidgetsBinding.instance.addPostFrameCallback((Duration _) {
-      scrollController.jumpTo(MainPageData.selectedAlbumScroll);
+      if (scrollController.hasClients) {
+        scrollController.jumpTo(MainPageData.selectedAlbumScroll);
+      }
     });
   }
 

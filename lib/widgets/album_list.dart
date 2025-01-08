@@ -35,7 +35,9 @@ class AlbumListState extends State<AlbumList> {
     });
 
     WidgetsBinding.instance.addPostFrameCallback((Duration _) {
-      scrollController.jumpTo(MainPageData.albumScroll);
+      if (scrollController.hasClients) {
+        scrollController.jumpTo(MainPageData.albumScroll);
+      }
     });
   }
 

@@ -33,7 +33,9 @@ class QueueViewState extends State<QueueView> {
     });
 
     WidgetsBinding.instance.addPostFrameCallback((Duration _) {
-      scrollController.jumpTo(MainPageData.queueScroll);
+      if (scrollController.hasClients) {
+        scrollController.jumpTo(MainPageData.queueScroll);
+      }
     });
 
     PlayerStateNotifier().addListener(_onPlayerStateChanged);

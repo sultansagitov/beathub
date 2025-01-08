@@ -21,13 +21,9 @@ class AlbumView extends StatefulWidget {
 class AlbumViewState extends State<AlbumView> {
   final GlobalKey<SongListState> songListKey = GlobalKey();
 
-  void _onTrackChanged(_, {bool byScroll = false }) {
-    setState(() {});
-  }
+  void _onTrackChanged(_, {bool byScroll = false }) => setState(() {});
 
-  void _onPlayerStateChanged() {
-    setState(() {});
-  }
+  void _onPlayerStateChanged() => setState(() {});
 
   @override
   void initState() {
@@ -60,7 +56,7 @@ class AlbumViewState extends State<AlbumView> {
           const SizedBox(height: 24),
           Header1("Rizl"),
           const SizedBox(height: 16),
-          Header2("Альбомы beathub"),
+          Header2("Beathub albums"),
           const SizedBox(height: 8),
           SizedBox(
             height: 180,
@@ -77,7 +73,7 @@ class AlbumViewState extends State<AlbumView> {
               child: SongList(key: songListKey, playerKey: widget.playerKey),
             )
           ),
-          SizedBox(height: 24)
+          const SizedBox(height: 24)
         ],
       ),
     );

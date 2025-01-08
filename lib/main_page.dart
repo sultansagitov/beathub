@@ -2,6 +2,7 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:beathub/classes/album.dart';
+import 'package:beathub/classes/enums.dart';
 import 'package:beathub/observer/album_view_closing_notifier.dart';
 import 'package:beathub/observer/player_state_notifier.dart';
 import 'package:beathub/views/album_view.dart';
@@ -72,6 +73,7 @@ class _MainPageState extends State<MainPage> {
         tween: ColorTween(begin: _currentColor, end: _nextColor),
         duration: const Duration(seconds: 1),
         builder: (BuildContext context, Color? color, Widget? _) {
+          PlayerState? playerState = _playerKey.currentState;
           return Container(
             decoration: BoxDecoration(
               gradient: RadialGradient(
@@ -95,8 +97,10 @@ class _MainPageState extends State<MainPage> {
                         scrollDirection: Axis.vertical,
                         children: [
                           AlbumView(playerKey: _playerKey),
-                          MusicView(playerKey: _playerKey),
-                          QueueView(playerKey: _playerKey)
+                          if (playerState?.queue.play != Play.notStarted)
+                            MusicView(playerKey: _playerKey),
+                          if (playerState?.queue.play != Play.notStarted)
+                           QueueView(playerKey: _playerKey)
                         ],
                       ),
                     ),
@@ -114,7 +118,7 @@ class _MainPageState extends State<MainPage> {
                     child: SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Text(
-                        _playerKey.currentState?.queue.getCurrentOrFirst()?.name ?? "",
+                        playerState?.queue.getCurrentOrFirst()?.name ?? "",
                         style: const TextStyle(fontSize: 18),
                       ),
                     ),
