@@ -1,6 +1,7 @@
 import 'package:beathub/main_page.dart';
 import 'package:beathub/observer/player_state_notifier.dart';
 import 'package:beathub/widgets/headers.dart';
+import 'package:beathub/widgets/horizontal_padding.dart';
 import 'package:flutter/material.dart';
 import 'package:beathub/classes/album.dart';
 import 'package:beathub/widgets/player.dart';
@@ -48,34 +49,42 @@ class AlbumViewState extends State<AlbumView> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 24),
-          Header1("Rizl"),
-          const SizedBox(height: 16),
-          Header2("Beathub albums"),
-          const SizedBox(height: 8),
-          SizedBox(
-            height: 180,
-            child: AlbumList(
-              size: 100,
-              playerKey: widget.playerKey,
-              onSelect: (Album album) =>
-                setState(() => MainPageData.selectedAlbum = album)
-            ),
+    var horizontalPadding = HorizontalPadding.of(context)?.horizontalPadding ?? 0;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 40),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+          child: Header1("Rizl"),
+        ),
+        const SizedBox(height: 16),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+          child: Header2("Beathub albums"),
+        ),
+        const SizedBox(height: 8),
+        SizedBox(
+          height: 180,
+          child: AlbumList(
+            size: 100,
+            playerKey: widget.playerKey,
+            onSelect: (Album album) =>
+              setState(() => MainPageData.selectedAlbum = album)
           ),
-          Expanded(
+        ),
+        Expanded(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(8),
               child: SongList(key: songListKey, playerKey: widget.playerKey),
-            )
-          ),
-          const SizedBox(height: 24)
-        ],
-      ),
+            ),
+          )
+        ),
+        const SizedBox(height: 40)
+      ],
     );
   }
 }

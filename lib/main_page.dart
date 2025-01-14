@@ -6,6 +6,7 @@ import 'package:beathub/classes/enums.dart';
 import 'package:beathub/observer/album_view_closing_notifier.dart';
 import 'package:beathub/observer/player_state_notifier.dart';
 import 'package:beathub/views/album_view.dart';
+import 'package:beathub/widgets/horizontal_padding.dart';
 import 'package:flutter/material.dart';
 import 'package:beathub/views/queue_view.dart';
 import 'package:beathub/views/music_view.dart';
@@ -66,7 +67,8 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    var isLightMode = false;
+    Brightness brightness = MediaQuery.of(context).platformBrightness;
+    bool isLightMode = brightness == Brightness.light;
 
     return Scaffold(
       body: TweenAnimationBuilder(
@@ -92,16 +94,19 @@ class _MainPageState extends State<MainPage> {
                 Column(
                   children: [
                     Expanded(
-                      child: PageView(
-                        controller: _pageController,
-                        scrollDirection: Axis.vertical,
-                        children: [
-                          AlbumView(playerKey: _playerKey),
-                          if (playerState?.queue.play != Play.notStarted)
-                            MusicView(playerKey: _playerKey),
-                          if (playerState?.queue.play != Play.notStarted)
-                           QueueView(playerKey: _playerKey)
-                        ],
+                      child: HorizontalPadding(
+                        horizontalPadding: 16,
+                        child: PageView(
+                          controller: _pageController,
+                          scrollDirection: Axis.vertical,
+                          children: [
+                            AlbumView(playerKey: _playerKey),
+                            if (playerState?.queue.play != Play.notStarted)
+                              MusicView(playerKey: _playerKey),
+                            if (playerState?.queue.play != Play.notStarted)
+                             QueueView(playerKey: _playerKey)
+                          ],
+                        ),
                       ),
                     ),
                     Player(key: _playerKey),
@@ -112,9 +117,11 @@ class _MainPageState extends State<MainPage> {
                     && _pageController.positions.isNotEmpty)
                   Positioned(
                     left: 24,
-                    top: _pageController.page != null
-                        ? (textFunc(_pageController.page!) * textHeight() + 50) // 50-700
-                        : 50,
+                    top: 50 + (
+                        _pageController.page != null
+                            ? (textFunc(_pageController.page!) * textHeight())
+                            : 0
+                    ),
                     child: SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Text(

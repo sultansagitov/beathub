@@ -1,5 +1,6 @@
 import 'package:beathub/classes/album.dart';
 import 'package:beathub/main_page.dart';
+import 'package:beathub/widgets/horizontal_padding.dart';
 import 'package:beathub/widgets/player.dart';
 import 'package:flutter/material.dart';
 
@@ -55,8 +56,13 @@ class AlbumListState extends State<AlbumList> {
       return const Text("No tracks");
     }
     
+    var horizontalPadding = HorizontalPadding.of(context)?.horizontalPadding ?? 0;
     return ListView.builder(
       controller: scrollController,
+      padding: EdgeInsets.fromLTRB(
+          horizontalPadding, 0,
+          horizontalPadding - 16, 0
+      ),
       scrollDirection: Axis.horizontal,
       itemCount: playerState.imageAlbums.length,
       itemBuilder: (context, index) {
