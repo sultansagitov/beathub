@@ -84,8 +84,8 @@ class _MainPageState extends State<MainPage> {
                   isLightMode ? (color?.withAlpha(127) ?? Colors.white) : Colors.black,
                 ],
                 radius: _pageController.hasClients
-                    ? radiusFunc(_pageController.page!)
-                    : 1,
+                  ? radiusFunc(_pageController.page!)
+                  : 1,
                 center: const Alignment(-1, -1),
               ),
             ),
@@ -119,14 +119,14 @@ class _MainPageState extends State<MainPage> {
                     left: 24,
                     top: 50 + (
                         _pageController.page != null
-                            ? (textFunc(_pageController.page!) * textHeight())
-                            : 0
+                          ? (textFunc(_pageController.page!) * textHeight())
+                          : 0
                     ),
                     child: SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Text(
                         playerState?.queue.getCurrentOrFirst()?.name ?? "",
-                        style: const TextStyle(fontSize: 18),
+                        // style: const TextStyle(fontSize: 18),
                       ),
                     ),
                   ),

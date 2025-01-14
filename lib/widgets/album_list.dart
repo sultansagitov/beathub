@@ -88,10 +88,7 @@ class AlbumListState extends State<AlbumList> {
                   width: widget.size,
                   child: Text(
                     album.name,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -101,7 +98,7 @@ class AlbumListState extends State<AlbumList> {
                   child: Text(
                     album.author.name,
                     style: const TextStyle(
-                      fontSize: 14,
+                      fontSize: 12,
                       color: Colors.grey,
                     ),
                     maxLines: 1,

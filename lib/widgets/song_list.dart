@@ -64,14 +64,14 @@ class SongListState extends State<SongList> {
                     MainPageData.selectedAlbum!.name,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)
+                  style: TextStyle(fontWeight: FontWeight.bold)
                 ),
                 if (playerState.queue.linkedAlbum == MainPageData.selectedAlbum!)
                   Row(
                     children: [
-                      Text("in queue"),
+                      Text("in queue", style: TextStyle(fontSize: 12)),
                       IconButton(
-                        icon: Icon(playerState.icon, size: 30),
+                        icon: Icon(playerState.icon),
                         onPressed: playerState.playBtn,
                       ),
                     ],
@@ -109,16 +109,18 @@ class SongListState extends State<SongList> {
                     decoration: BoxDecoration(
                       color: playerState.queue.linkedAlbum == MainPageData.selectedAlbum!
                           && playerState.queue.isCurrent(index)
-                          ? Colors.white.withAlpha(64)
+                          ? Colors.white.withAlpha(24)
                           : null
                     ),
                     child: Padding(
                       padding: EdgeInsets.symmetric(vertical: 2, horizontal: 24),
                       child: Container(
-                        decoration: playerState.queue.linkedAlbum != MainPageData.selectedAlbum!
-                            || !playerState.queue.isCurrent(index)
-                            && !playerState.queue.isCurrent(index - 1)
-                          ? BoxDecoration(
+                        decoration:
+                          playerState.queue.linkedAlbum
+                              != MainPageData.selectedAlbum!
+                          || !playerState.queue.isCurrent(index)
+                          && !playerState.queue.isCurrent(index - 1)
+                        ? BoxDecoration(
                             border: Border(
                               top: BorderSide(
                                 width: 1,
@@ -126,7 +128,7 @@ class SongListState extends State<SongList> {
                               )
                             ),
                           )
-                          : null,
+                        : null,
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Column(
@@ -139,8 +141,8 @@ class SongListState extends State<SongList> {
                                   overflow: TextOverflow.ellipsis,
                                   textAlign: TextAlign.left,
                                   style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: playerState.queue.getCurrent() == song
+                                    fontWeight:
+                                      playerState.queue.getCurrent() == song
                                       ? FontWeight.bold
                                       : FontWeight.w300,
                                   ),
@@ -148,7 +150,16 @@ class SongListState extends State<SongList> {
                               ),
                               Align(
                                 alignment: Alignment.centerLeft,
-                                child: Text("10:00")
+                                child: Text(
+                                  "10:00",
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight:
+                                    playerState.queue.getCurrent() == song
+                                    ? FontWeight.bold
+                                    : FontWeight.w300,
+                                  ),
+                                )
                               )
                             ],
                           ),
