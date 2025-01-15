@@ -61,7 +61,7 @@ class QueueViewState extends State<QueueView> {
       return const Center(child: Text('No tracks in queue'));
     }
 
-    var horizontalPadding = HorizontalPadding.of(context)?.horizontalPadding ?? 0;
+    double padding = HorizontalPadding.of(context)?.horizontalPadding ?? 0;
 
     return Column(
       children: [
@@ -72,14 +72,14 @@ class QueueViewState extends State<QueueView> {
             IconButton(
               padding: const EdgeInsets.all(10),
               icon: const Icon(Icons.close),
-              onPressed: AlbumViewClosingNotifier().notifyListeners,
+              onPressed: AlbumViewClosingNotifier().notifyAll,
             )
           ],
         ),
         Expanded(
           child: ListView.builder(
             controller: scrollController,
-            padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+            padding: EdgeInsets.symmetric(horizontal: padding),
             itemCount: playerState.queue.getCount(),
             itemBuilder: (context, index) {
               final Song track = playerState.queue.get(index);

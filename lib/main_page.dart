@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:beathub/classes/album.dart';
 import 'package:beathub/classes/enums.dart';
+import 'package:beathub/classes/queue.dart';
 import 'package:beathub/observer/album_view_closing_notifier.dart';
 import 'package:beathub/observer/player_state_notifier.dart';
 import 'package:beathub/views/album_view.dart';
@@ -30,13 +31,11 @@ class _MainPageState extends State<MainPage> {
 
   void _onPlayerStateChanged() {
     setState(() {
-      if (_playerKey.currentState != null) {
-        _currentColor =
-            _playerKey.currentState?.queue.getCurrent()?.album.mainColor
-                ?? Colors.black;
-        _nextColor =
-            _playerKey.currentState!.queue.getCurrent()?.album.mainColor
-                ?? Colors.black;
+      PlayerState? playerState = _playerKey.currentState;
+      if (playerState != null) {
+        Queue queue = playerState.queue;
+        Color? mainColor = queue.getCurrent()?.album.mainColor;
+        _nextColor = _currentColor = mainColor ?? Colors.black;
       }
     });
   }
@@ -67,11 +66,11 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    Brightness brightness = MediaQuery.of(context).platformBrightness;
+    var brightness = MediaQuery.of(context).platformBrightness;
     bool isLightMode = brightness == Brightness.light;
-    PlayerState? playerState = _playerKey.currentState;
+    Queue? queue = _playerKey.currentState?.queue;
 
-    double horizontalPadding = 16;
+    double padding = 16;
 
     return Scaffold(
       body: TweenAnimationBuilder(
@@ -83,7 +82,9 @@ class _MainPageState extends State<MainPage> {
               gradient: RadialGradient(
                 colors: [
                   color?.withAlpha(isLightMode ? 127 : 192) ?? Colors.white,
-                  isLightMode ? (color?.withAlpha(127) ?? Colors.white) : Colors.black,
+                  isLightMode
+                      ? (color?.withAlpha(127) ?? Colors.white)
+                      : Colors.black,
                 ],
                 radius: _pageController.hasClients
                   ? radiusFunc(_pageController.page!)
@@ -97,15 +98,15 @@ class _MainPageState extends State<MainPage> {
                   children: [
                     Expanded(
                       child: HorizontalPadding(
-                        horizontalPadding: horizontalPadding,
+                        horizontalPadding: padding,
                         child: PageView(
                           controller: _pageController,
                           scrollDirection: Axis.vertical,
                           children: [
                             AlbumView(playerKey: _playerKey),
-                            if (playerState?.queue.play != Play.notStarted)
+                            if (queue?.play != Play.notStarted)
                               MusicView(playerKey: _playerKey),
-                            if (playerState?.queue.play != Play.notStarted)
+                            if (queue?.play != Play.notStarted)
                               QueueView(playerKey: _playerKey)
                           ],
                         ),
@@ -117,16 +118,13 @@ class _MainPageState extends State<MainPage> {
                     const SizedBox(height: 20),
                   ],
                 ),
-                if (_pageController.hasClients
-                    && _pageController.positions.isNotEmpty)
+                if (_pageController.positions.isNotEmpty)
                   Positioned(
-                    left: horizontalPadding + 8,
-                    top: _pageController.page != null
-                        ? 50 + textFunc(_pageController.page!) * textHeight()
-                        : 50,
+                    left: padding + 8,
+                    top: 50 + textFunc(_pageController.page!) * textHeight(),
                     child: SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
-                      child: Text(playerState?.queue.getCurrentOrFirst()?.name ?? ""),
+                      child: Text(queue?.getCurrentOrFirst()?.name ?? ""),
                     ),
                   ),
               ]
@@ -141,7 +139,7 @@ class _MainPageState extends State<MainPage> {
     BuildContext? currentContext = _playerKey.currentContext;
     if (currentContext == null) return 0;
 
-    final RenderBox renderBox = currentContext.findRenderObject() as RenderBox;
+    final renderBox = currentContext.findRenderObject() as RenderBox;
     final position = renderBox.localToGlobal(Offset.zero);
     return position.dy.round() - 80;
   }

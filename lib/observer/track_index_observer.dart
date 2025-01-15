@@ -3,11 +3,9 @@ import 'package:beathub/classes/observer.dart';
 typedef TrackIndexFunction = void Function(int index, { bool byScroll });
 
 class TrackIndexObserver extends Observer<TrackIndexFunction> {
-  static final TrackIndexObserver _instance = TrackIndexObserver._internal();
+  static final _instance = TrackIndexObserver._internal();
   TrackIndexObserver._internal();
-  factory TrackIndexObserver() {
-    return _instance;
-  }
+  factory TrackIndexObserver() => _instance;
 
   void changeTrack(int index, { bool byScroll = false }) {
     for (TrackIndexFunction listener in listeners) {

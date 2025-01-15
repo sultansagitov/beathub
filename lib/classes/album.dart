@@ -12,12 +12,14 @@ class Album {
   final List<Song> songs = [];
   late Author author;
 
-  Album(this.name, String imagePath) : image = AssetImage(imagePath) {
+  Album(this.name, String imagePath)
+      : image = AssetImage(imagePath)
+  {
     _setMainColorFromImage();
   }
 
   Future<void> _setMainColorFromImage() async {
-    PaletteGenerator pg = await PaletteGenerator.fromImageProvider(image);
+    var pg = await PaletteGenerator.fromImageProvider(image);
     mainColor = pg.dominantColor?.color ?? Colors.grey;
   }
 

@@ -50,6 +50,8 @@ class SongListState extends State<SongList> {
       );
     }
 
+    Queue queue = playerState.queue;
+
     return Container(
       width: double.maxFinite,
       color: MainPageData.selectedAlbum?.mainColor.withAlpha(100),
@@ -66,7 +68,7 @@ class SongListState extends State<SongList> {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(fontWeight: FontWeight.bold)
                 ),
-                if (playerState.queue.linkedAlbum == MainPageData.selectedAlbum!)
+                if (queue.linkedAlbum == MainPageData.selectedAlbum!)
                   Row(
                     children: [
                       Text("in queue", style: TextStyle(fontSize: 12)),
@@ -81,8 +83,8 @@ class SongListState extends State<SongList> {
                     icon: Icon(Icons.play_arrow, size: 30),
                     onPressed: () async {
                       await playerState.pause();
-                      playerState.queue.position = Duration(seconds: 0);
-                      playerState.queue = Queue.fromAlbum(MainPageData.selectedAlbum!);
+                      queue.position = Duration(seconds: 0);
+                      queue = Queue.fromAlbum(MainPageData.selectedAlbum!);
                       playerState.playBtn();
                     },
                   )
@@ -100,26 +102,28 @@ class SongListState extends State<SongList> {
                   behavior: HitTestBehavior.opaque,
                   onTap: () async {
                     await playerState.pause();
-                    if (playerState.queue.linkedAlbum != MainPageData.selectedAlbum!) {
-                      playerState.queue = Queue.fromAlbum(MainPageData.selectedAlbum!);
+                    if (queue.linkedAlbum != MainPageData.selectedAlbum!) {
+                      queue = Queue.fromAlbum(MainPageData.selectedAlbum!);
                     }
                     await playerState.playTrackByIndex(index);
                   },
                   child: Container(
                     decoration: BoxDecoration(
-                      color: playerState.queue.linkedAlbum == MainPageData.selectedAlbum!
-                          && playerState.queue.isCurrent(index)
-                          ? Colors.white.withAlpha(24)
-                          : null
+                      color: queue.linkedAlbum == MainPageData.selectedAlbum!
+                          && queue.isCurrent(index)
+                            ? Colors.white.withAlpha(24)
+                            : null
                     ),
                     child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: 2, horizontal: 24),
+                      padding: EdgeInsets.symmetric(
+                        vertical: 2,
+                        horizontal: 24
+                      ),
                       child: Container(
                         decoration:
-                          playerState.queue.linkedAlbum
-                              != MainPageData.selectedAlbum!
-                          || !playerState.queue.isCurrent(index)
-                          && !playerState.queue.isCurrent(index - 1)
+                          queue.linkedAlbum != MainPageData.selectedAlbum!
+                          || !queue.isCurrent(index)
+                          && !queue.isCurrent(index - 1)
                         ? BoxDecoration(
                             border: Border(
                               top: BorderSide(
@@ -142,7 +146,7 @@ class SongListState extends State<SongList> {
                                   textAlign: TextAlign.left,
                                   style: TextStyle(
                                     fontWeight:
-                                      playerState.queue.getCurrent() == song
+                                      queue.getCurrent() == song
                                       ? FontWeight.bold
                                       : FontWeight.w300,
                                   ),
@@ -155,7 +159,7 @@ class SongListState extends State<SongList> {
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight:
-                                    playerState.queue.getCurrent() == song
+                                    queue.getCurrent() == song
                                     ? FontWeight.bold
                                     : FontWeight.w300,
                                   ),

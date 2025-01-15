@@ -13,15 +13,15 @@ class Queue {
   Play play = Play.notStarted;
 
   Duration? duration;
+
   Duration? _position;
   Duration get position {
-    if (_position == null) {
-      return Duration.zero;
-    }
+    if (_position == null) return Duration.zero;
 
     if (_position! > (duration ?? Duration.zero)) {
       return duration ?? Duration.zero;
     }
+
     return _position ?? Duration.zero;
   }
 

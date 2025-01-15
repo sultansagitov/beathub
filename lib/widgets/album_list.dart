@@ -56,13 +56,10 @@ class AlbumListState extends State<AlbumList> {
       return const Text("No tracks");
     }
     
-    var horizontalPadding = HorizontalPadding.of(context)?.horizontalPadding ?? 0;
+    double padding = HorizontalPadding.of(context)?.horizontalPadding ?? 0;
     return ListView.builder(
       controller: scrollController,
-      padding: EdgeInsets.fromLTRB(
-          horizontalPadding, 0,
-          horizontalPadding - 16, 0
-      ),
+      padding: EdgeInsets.only(left: padding, right: padding - 16),
       scrollDirection: Axis.horizontal,
       itemCount: playerState.imageAlbums.length,
       itemBuilder: (context, index) {

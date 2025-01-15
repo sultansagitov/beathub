@@ -49,19 +49,19 @@ class AlbumViewState extends State<AlbumView> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    var horizontalPadding = HorizontalPadding.of(context)?.horizontalPadding ?? 0;
+    double padding = HorizontalPadding.of(context)?.horizontalPadding ?? 0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 40),
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+          padding: EdgeInsets.symmetric(horizontal: padding),
           child: Header1("Rizl"),
         ),
         const SizedBox(height: 16),
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+          padding: EdgeInsets.symmetric(horizontal: padding),
           child: Header2("Beathub albums"),
         ),
         const SizedBox(height: 8),
@@ -76,10 +76,13 @@ class AlbumViewState extends State<AlbumView> {
         ),
         Expanded(
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+            padding: EdgeInsets.symmetric(horizontal: padding),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: SongList(key: songListKey, playerKey: widget.playerKey),
+              child: SongList(
+                key: songListKey,
+                playerKey: widget.playerKey
+              ),
             ),
           )
         ),

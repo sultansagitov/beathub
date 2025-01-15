@@ -62,7 +62,8 @@ class MusicViewState extends State<MusicView> {
 
   @override
   Widget build(BuildContext context) {
-    bool isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
+    Orientation orientation = MediaQuery.of(context).orientation;
+    bool isPortrait = orientation == Orientation.portrait;
     PlayerState? playerState = widget.playerKey.currentState;
 
     if (playerState == null) {
