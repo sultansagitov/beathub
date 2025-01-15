@@ -2,6 +2,7 @@ import 'package:beathub/classes/song.dart';
 import 'package:beathub/main_page.dart';
 import 'package:beathub/observer/album_view_closing_notifier.dart';
 import 'package:beathub/observer/player_state_notifier.dart';
+import 'package:beathub/widgets/horizontal_padding.dart';
 import 'package:flutter/material.dart';
 import 'package:beathub/widgets/player.dart';
 
@@ -56,6 +57,8 @@ class QueueViewState extends State<QueueView> {
       return const Center(child: Text('No tracks in queue'));
     }
 
+    var horizontalPadding = HorizontalPadding.of(context)?.horizontalPadding ?? 0;
+
     return Column(
       children: [
         const SizedBox(height: 30),
@@ -72,11 +75,11 @@ class QueueViewState extends State<QueueView> {
         Expanded(
           child: ListView.builder(
             controller: scrollController,
-            padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+            padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
             itemCount: playerState.queue.getCount(),
             itemBuilder: (context, index) {
               final Song track = playerState.queue.get(index);
-              final bool isCurrentTrack = playerState.queue.isCurrent(index);
+              final isCurrentTrack = playerState.queue.isCurrent(index);
 
               return ListTile(
                 contentPadding: const EdgeInsets.all(4),

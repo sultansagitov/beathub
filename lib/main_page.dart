@@ -70,6 +70,8 @@ class _MainPageState extends State<MainPage> {
     Brightness brightness = MediaQuery.of(context).platformBrightness;
     bool isLightMode = brightness == Brightness.light;
 
+    double horizontalPadding = 16;
+
     return Scaffold(
       body: TweenAnimationBuilder(
         tween: ColorTween(begin: _currentColor, end: _nextColor),
@@ -95,7 +97,7 @@ class _MainPageState extends State<MainPage> {
                   children: [
                     Expanded(
                       child: HorizontalPadding(
-                        horizontalPadding: 16,
+                        horizontalPadding: horizontalPadding,
                         child: PageView(
                           controller: _pageController,
                           scrollDirection: Axis.vertical,
@@ -116,7 +118,7 @@ class _MainPageState extends State<MainPage> {
                 if (_pageController.hasClients
                     && _pageController.positions.isNotEmpty)
                   Positioned(
-                    left: 24,
+                    left: horizontalPadding + 8,
                     top: 50 + (
                         _pageController.page != null
                           ? (textFunc(_pageController.page!) * textHeight())
