@@ -69,6 +69,7 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     Brightness brightness = MediaQuery.of(context).platformBrightness;
     bool isLightMode = brightness == Brightness.light;
+    PlayerState? playerState = _playerKey.currentState;
 
     double horizontalPadding = 16;
 
@@ -77,7 +78,6 @@ class _MainPageState extends State<MainPage> {
         tween: ColorTween(begin: _currentColor, end: _nextColor),
         duration: const Duration(seconds: 1),
         builder: (BuildContext context, Color? color, Widget? _) {
-          PlayerState? playerState = _playerKey.currentState;
           return Container(
             decoration: BoxDecoration(
               gradient: RadialGradient(
@@ -106,12 +106,14 @@ class _MainPageState extends State<MainPage> {
                             if (playerState?.queue.play != Play.notStarted)
                               MusicView(playerKey: _playerKey),
                             if (playerState?.queue.play != Play.notStarted)
-                             QueueView(playerKey: _playerKey)
+                              QueueView(playerKey: _playerKey)
                           ],
                         ),
                       ),
                     ),
-                    Player(key: _playerKey),
+                    Player(
+                        key: _playerKey
+                    ),
                     const SizedBox(height: 20),
                   ],
                 ),
@@ -119,17 +121,12 @@ class _MainPageState extends State<MainPage> {
                     && _pageController.positions.isNotEmpty)
                   Positioned(
                     left: horizontalPadding + 8,
-                    top: 50 + (
-                        _pageController.page != null
-                          ? (textFunc(_pageController.page!) * textHeight())
-                          : 0
-                    ),
+                    top: _pageController.page != null
+                        ? 50 + textFunc(_pageController.page!) * textHeight()
+                        : 50,
                     child: SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
-                      child: Text(
-                        playerState?.queue.getCurrentOrFirst()?.name ?? "",
-                        // style: const TextStyle(fontSize: 18),
-                      ),
+                      child: Text(playerState?.queue.getCurrentOrFirst()?.name ?? ""),
                     ),
                   ),
               ]
@@ -141,7 +138,10 @@ class _MainPageState extends State<MainPage> {
   }
 
   int textHeight() {
-    final RenderBox renderBox = _playerKey.currentContext!.findRenderObject() as RenderBox;
+    BuildContext? currentContext = _playerKey.currentContext;
+    if (currentContext == null) return 0;
+
+    final RenderBox renderBox = currentContext.findRenderObject() as RenderBox;
     final position = renderBox.localToGlobal(Offset.zero);
     return position.dy.round() - 80;
   }

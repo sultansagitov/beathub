@@ -53,7 +53,11 @@ class QueueViewState extends State<QueueView> {
   Widget build(BuildContext context) {
     final playerState = widget.playerKey.currentState;
 
-    if (playerState == null || playerState.queue.isEmpty()) {
+    if (playerState == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (playerState.queue.isEmpty()) {
       return const Center(child: Text('No tracks in queue'));
     }
 

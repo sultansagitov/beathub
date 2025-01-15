@@ -1,3 +1,4 @@
+import 'package:beathub/classes/enums.dart';
 import 'package:beathub/observer/track_index_observer.dart';
 import 'package:flutter/material.dart';
 import 'package:beathub/widgets/player.dart';
@@ -64,7 +65,11 @@ class MusicViewState extends State<MusicView> {
     bool isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
     PlayerState? playerState = widget.playerKey.currentState;
 
-    if (playerState == null || playerState.queue.songs.isEmpty) {
+    if (playerState == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (playerState.queue.play == Play.notStarted) {
       return const Center(child: Text("Track is not started"));
     }
 
