@@ -4,7 +4,9 @@ import 'package:beathub/classes/album.dart';
 class Song {
   final String name;
   final String path;
+  final Duration duration;
   AssetSource? _songAsset;
+
   late Album album;
 
   AssetSource get songAsset {
@@ -15,5 +17,6 @@ class Song {
   Song({
     required this.name,
     required this.path,
+    required this.duration
   });
 }

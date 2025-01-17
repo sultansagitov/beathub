@@ -159,7 +159,7 @@ class SongListState extends State<SongList> {
                               Align(
                                 alignment: Alignment.centerLeft,
                                 child: Text(
-                                  "10:00",
+                                  formatDuration(song.duration),
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight:

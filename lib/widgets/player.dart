@@ -11,6 +11,25 @@ import 'package:beathub/classes/queue.dart';
 import 'package:beathub/classes/song.dart';
 import 'package:beathub/classes/enums.dart';
 
+Duration parseDuration(String time) {
+  try {
+    // Split the time string into minutes and seconds
+    final parts = time.split(':');
+    if (parts.length != 2) {
+      throw FormatException("Invalid time format");
+    }
+
+    // Parse minutes and seconds
+    final minutes = int.parse(parts[0]);
+    final seconds = int.parse(parts[1]);
+
+    // Create and return a Duration object
+    return Duration(minutes: minutes, seconds: seconds);
+  } catch (e) {
+    throw FormatException("Error parsing duration: $e");
+  }
+}
+
 String formatDuration(Duration duration) {
   String twoDigits(int n) => n.toString().padLeft(2, '0');
 
@@ -76,10 +95,16 @@ class PlayerState extends State<Player> {
           var name = json["name"];
           var albumName = json["album"];
           var path = json["song"];
+          var durationString = json["duration"];
+          var parsedDuration = parseDuration(durationString);
 
           var album = imageAlbums.firstWhere((al) => al.name == albumName);
 
-          album.addSong(Song(name: name, path: path));
+          album.addSong(Song(
+            name: name,
+            path: path,
+            duration: parsedDuration
+          ));
         }
 
         WidgetsBinding.instance.addPostFrameCallback((_) {
