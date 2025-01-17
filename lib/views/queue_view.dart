@@ -21,10 +21,8 @@ class QueueView extends StatefulWidget {
 class QueueViewState extends State<QueueView> {
   ScrollController scrollController = ScrollController();
 
-  void _onPlayerStateChanged() {
-    setState(() {});
-  }
-  
+  void _onPlayerStateChanged() => setState(() {});
+
   @override
   void initState() {
     super.initState();
@@ -41,7 +39,7 @@ class QueueViewState extends State<QueueView> {
 
     PlayerStateNotifier().addListener(_onPlayerStateChanged);
   }
-  
+
   @override
   void dispose() {
     PlayerStateNotifier().removeListener(_onPlayerStateChanged);

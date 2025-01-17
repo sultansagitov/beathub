@@ -35,7 +35,7 @@ class _BeathubState extends State<Beathub> {
           textTheme: ButtonTextTheme.primary,
         ),
         floatingActionButtonTheme: const FloatingActionButtonThemeData(
-          backgroundColor: Colors.orange, 
+          backgroundColor: Colors.orange,
         ),
         iconTheme: const IconThemeData(color: Colors.white),
         useMaterial3: true,

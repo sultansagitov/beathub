@@ -55,7 +55,7 @@ class AlbumListState extends State<AlbumList> {
     if (playerState == null) {
       return const Text("No tracks");
     }
-    
+
     double padding = HorizontalPadding.of(context)?.horizontalPadding ?? 0;
     return ListView.builder(
       controller: scrollController,

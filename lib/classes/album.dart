@@ -12,8 +12,7 @@ class Album {
   final List<Song> songs = [];
   late Author author;
 
-  Album(this.name, String imagePath)
-      : image = AssetImage(imagePath)
+  Album(this.name, String imagePath) : image = AssetImage(imagePath)
   {
     _setMainColorFromImage();
   }

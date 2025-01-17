@@ -112,9 +112,7 @@ class _MainPageState extends State<MainPage> {
                         ),
                       ),
                     ),
-                    Player(
-                        key: _playerKey
-                    ),
+                    Player(key: _playerKey),
                     const SizedBox(height: 20),
                   ],
                 ),

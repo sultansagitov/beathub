@@ -84,7 +84,9 @@ class SongListState extends State<SongList> {
                     onPressed: () async {
                       await playerState.pause();
                       queue.position = Duration(seconds: 0);
-                      queue = Queue.fromAlbum(MainPageData.selectedAlbum!);
+                      playerState.queue =
+                          Queue.fromAlbum(MainPageData.selectedAlbum!);
+                      queue = playerState.queue;
                       playerState.playBtn();
                     },
                   )
@@ -103,7 +105,9 @@ class SongListState extends State<SongList> {
                   onTap: () async {
                     await playerState.pause();
                     if (queue.linkedAlbum != MainPageData.selectedAlbum!) {
-                      queue = Queue.fromAlbum(MainPageData.selectedAlbum!);
+                      playerState.queue =
+                          Queue.fromAlbum(MainPageData.selectedAlbum!);
+                      queue = playerState.queue;
                     }
                     await playerState.playTrackByIndex(index);
                   },
